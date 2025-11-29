@@ -18,8 +18,6 @@ private enum FeedLayout {
     static let posterWidth: CGFloat = 80
     static let posterImageHeight: CGFloat = 120
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
-    static let scrollSectionTextHorizontalPadding: CGFloat = 18
-    static let scrollSectionHorizontalInset: CGFloat = 18
 }
 
 struct FeedView: View {
@@ -50,16 +48,20 @@ struct FeedView: View {
         .init(imageName: "urchin")
     ]
     private let switcherGlass = Color(hex: "F5F5F5").opacity(0.1)
+    private let perfectDaysStory = RecentStory(title: "", subtitle: "", imageName: "perfect_days")
  
     var body: some View {
         ZStack(alignment: .bottom) {
             ScrollView(showsIndicators: false) {
                 VStack(alignment: .leading, spacing: 24) {
                     header
+                        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                     segmentSwitcher
+                        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                     newFromFriends
                     recentStories
                     popularThisWeek
+                    reviewsFromFriends
                     // TODO: Subsequent sections (lists/cards) with 36pt spacing
                 }
                 .padding(.top, FeedLayout.topContentPadding)
@@ -82,7 +84,6 @@ struct FeedView: View {
                 CircleGlassButton(systemName: "gearshape")
             }
         }
-        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
     private var segmentSwitcher: some View {
@@ -94,7 +95,6 @@ struct FeedView: View {
         .padding(4)
         .background(switcherGlass)
         .liquidGlass(shape: Capsule(), strokeColor: Color.black.opacity(0.1))
-        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
     private func segmentButton(_ segment: FeedSegment) -> some View {
@@ -123,40 +123,40 @@ struct FeedView: View {
 
     private var newFromFriends: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
-            SectionHeader(title: "New from friends",
-                          showChevron: false,
-                          horizontalPadding: FeedLayout.scrollSectionTextHorizontalPadding + FeedLayout.titleHorizontalPadding)
+            Text("New from friends")
+                .typography(Typography.sectionTitle)
+                .padding(.top, FeedLayout.titleTopPadding)
+                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+                .padding(.bottom, FeedLayout.headingVerticalPadding)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
                     ForEach(newFromFriendsItems) { item in
                         FriendCard(item: item)
                     }
-                    Color.clear
-                        .frame(width: FeedLayout.scrollSectionHorizontalInset)
                 }
             }
-            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
         }
+        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
     private var popularThisWeek: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
-            SectionHeader(title: "Popular this week",
-                          showChevron: false,
-                          horizontalPadding: FeedLayout.scrollSectionTextHorizontalPadding + FeedLayout.titleHorizontalPadding)
+            Text("Popular this week")
+                .typography(Typography.sectionTitle)
+                .padding(.top, FeedLayout.titleTopPadding)
+                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+                .padding(.bottom, FeedLayout.headingVerticalPadding)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
                     ForEach(popularItems) { item in
                         PosterCard(item: item)
                     }
-                    Color.clear
-                        .frame(width: FeedLayout.scrollSectionHorizontalInset)
                 }
             }
-            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
         }
+        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
     private var recentStories: some View {
@@ -164,7 +164,18 @@ struct FeedView: View {
             // TODO: Open story detail
         } label: {
             VStack(spacing: FeedLayout.sectionSpacing) {
-                SectionHeader(title: "Recent stories", showChevron: true)
+                HStack(spacing: FeedLayout.headingIconSpacing) {
+                    Text("Recent stories")
+                        .typography(Typography.sectionTitle)
+                        .foregroundStyle(Color.black)
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(Color.black)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, FeedLayout.titleTopPadding)
+                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+                .padding(.bottom, FeedLayout.headingVerticalPadding)
 
                 recentStoryCard(recentStory)
             }
@@ -174,34 +185,28 @@ struct FeedView: View {
         .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
-}
-
-private struct SectionHeader: View {
-    let title: String
-    let showChevron: Bool
-    let horizontalPadding: CGFloat
-
-    init(title: String, showChevron: Bool, horizontalPadding: CGFloat = FeedLayout.titleHorizontalPadding) {
-        self.title = title
-        self.showChevron = showChevron
-        self.horizontalPadding = horizontalPadding
-    }
-
-    var body: some View {
-        HStack(spacing: FeedLayout.headingIconSpacing) {
-            Text(title)
-                .typography(Typography.sectionTitle)
-                .foregroundStyle(Color.black)
-            if showChevron {
+    private var reviewsFromFriends: some View {
+        VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
+            HStack(spacing: FeedLayout.headingIconSpacing) {
+                Text("Reviews from friends")
+                    .typography(Typography.sectionTitle)
+                    .foregroundStyle(Color.black)
                 Image(systemName: "chevron.right")
                     .font(.system(size: 17, weight: .medium))
                     .foregroundStyle(Color.black)
             }
-            Spacer()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, FeedLayout.titleTopPadding)
+            .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+            .padding(.bottom, FeedLayout.headingVerticalPadding)
+
+            recentStoryCard(perfectDaysStory,
+                            height: 100,
+                            headline: "Perfect Days (2023)",
+                            lineLimit: 1)
         }
-        .padding(.top, FeedLayout.titleTopPadding)
-        .padding(.horizontal, horizontalPadding)
-        .padding(.bottom, FeedLayout.headingVerticalPadding)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 }
 
@@ -331,7 +336,8 @@ private struct RecentStory {
 private extension FeedView {
     func recentStoryCard(_ story: RecentStory,
                          height: CGFloat = FeedLayout.cardHeight,
-                         headline: String? = nil) -> some View {
+                         headline: String? = nil,
+                         lineLimit: Int = 2) -> some View {
         ZStack(alignment: .bottomLeading) {
             Image(story.imageName)
                 .resizable()
@@ -343,7 +349,7 @@ private extension FeedView {
             Text(headline ?? story.headline)
                 .typography(Typography.recentStoryTitle)
                 .foregroundStyle(Color.white)
-                .lineLimit(2)
+                .lineLimit(lineLimit)
                 .padding(.leading, FeedLayout.cardTextLeading)
                 .padding(.bottom, FeedLayout.cardTextBottom)
         }
