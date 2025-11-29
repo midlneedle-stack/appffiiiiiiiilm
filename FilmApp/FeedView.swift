@@ -18,6 +18,7 @@ private enum FeedLayout {
     static let posterWidth: CGFloat = 80
     static let posterImageHeight: CGFloat = 120
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
+    static let reviewsCardWidth: CGFloat = 332
 }
 
 struct FeedView: View {
@@ -126,7 +127,7 @@ struct FeedView: View {
             Text("New from friends")
                 .typography(Typography.sectionTitle)
                 .padding(.top, FeedLayout.titleTopPadding)
-                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+                .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 .padding(.bottom, FeedLayout.headingVerticalPadding)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -136,8 +137,8 @@ struct FeedView: View {
                     }
                 }
             }
+            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
         }
-        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
     private var popularThisWeek: some View {
@@ -145,7 +146,7 @@ struct FeedView: View {
             Text("Popular this week")
                 .typography(Typography.sectionTitle)
                 .padding(.top, FeedLayout.titleTopPadding)
-                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+                .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 .padding(.bottom, FeedLayout.headingVerticalPadding)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -155,8 +156,8 @@ struct FeedView: View {
                     }
                 }
             }
+            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
         }
-        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
     private var recentStories: some View {
@@ -199,14 +200,19 @@ struct FeedView: View {
             .padding(.top, FeedLayout.titleTopPadding)
             .padding(.horizontal, FeedLayout.titleHorizontalPadding)
             .padding(.bottom, FeedLayout.headingVerticalPadding)
+            .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
-            recentStoryCard(perfectDaysStory,
-                            height: 100,
-                            headline: "Perfect Days (2023)",
-                            lineLimit: 1)
+            HStack {
+                Spacer()
+                recentStoryCard(perfectDaysStory,
+                                height: 100,
+                                headline: "Perfect Days (2023)",
+                                lineLimit: 1)
+                    .frame(width: FeedLayout.reviewsCardWidth)
+                Spacer()
+            }
         }
         .frame(maxWidth: .infinity)
-        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 }
 

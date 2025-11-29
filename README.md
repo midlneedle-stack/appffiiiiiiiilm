@@ -6,7 +6,7 @@
 - **Prefer inside strokes.** All 1pt borders should be drawn with `strokeBorder(...)` so the line stays inside the component bounds and does not shift the layout.
 - **Avoid extra wrappers.** Do not introduce additional containers or padding layers around existing sections just to force spacing; share layout data through the shared `FeedLayout` (or similar) tokens instead, so every block follows the same values.
 - **Reuse style tokens.** When adjusting spacing, typography, or colors, favor the existing enums (`Typography`, `Palette`, `FeedLayout`, etc.) so spacing changes stay consistent across the UI.
-- **Don’t double up padding.** Even if the designer or you mention an extra indent, assume the global horizontal padding already exists; check before adding more so we don’t break the uniform margins.
+- **Horizontal scroll padding.** When designing horizontal scroll views, give them 18pt horizontal breathing room with `.contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)` so the first/last cards never start flush against the screen yet still scroll all the way to the edges; don’t revert this by reintroducing `padding(.horizontal, …)` on the parent.
 
 If you are unsure about a change, check with the owner before touching values that may have been tuned by hand.
 
