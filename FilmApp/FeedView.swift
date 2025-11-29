@@ -18,6 +18,7 @@ private enum FeedLayout {
     static let posterWidth: CGFloat = 80
     static let posterImageHeight: CGFloat = 120
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
+    static let reviewAvatarSize: CGFloat = 18
     static let reviewsCardWidth: CGFloat = 332
 }
 
@@ -39,6 +40,9 @@ struct FeedView: View {
     ]
     private let recentStory = RecentStory(title: "With the Stars:",
                                           subtitle: "A Tribute to David Lynch",
+                                          authorName: "Karsten",
+                                          likes: 29,
+                                          avatarImageName: "karsten_avatar",
                                           imageName: "david_lynch_article")
     private let popularItems: [PosterItem] = [
         .init(imageName: "die_my_love"),
@@ -49,7 +53,7 @@ struct FeedView: View {
         .init(imageName: "urchin")
     ]
     private let switcherGlass = Color(hex: "F5F5F5").opacity(0.1)
-    private let perfectDaysStory = RecentStory(title: "", subtitle: "", imageName: "perfect_days")
+    private let perfectDaysStory = RecentStory(title: "", subtitle: "", authorName: "Karsten", likes: 29, avatarImageName: "karsten_avatar", imageName: "perfect_days")
  
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -178,7 +182,7 @@ struct FeedView: View {
                 .padding(.horizontal, FeedLayout.titleHorizontalPadding)
                 .padding(.bottom, FeedLayout.headingVerticalPadding)
 
-                recentStoryCard(recentStory)
+                recentStoryPreviewCard(recentStory)
             }
             .frame(maxWidth: .infinity)
         }
@@ -204,10 +208,10 @@ struct FeedView: View {
 
             HStack {
                 Spacer()
-                recentStoryCard(perfectDaysStory,
-                                height: 100,
-                                headline: "Perfect Days (2023)",
-                                lineLimit: 1)
+            reviewStoryCard(perfectDaysStory,
+                            height: 100,
+                            headline: "Perfect Days (2023)",
+                            lineLimit: 1)
                     .frame(width: FeedLayout.reviewsCardWidth)
                 Spacer()
             }
@@ -332,6 +336,9 @@ private struct PosterCard: View {
 private struct RecentStory {
     let title: String
     let subtitle: String
+    let authorName: String
+    let likes: Int
+    let avatarImageName: String
     let imageName: String
 
     var headline: String {
@@ -340,16 +347,73 @@ private struct RecentStory {
 }
 
 private extension FeedView {
-    func recentStoryCard(_ story: RecentStory,
+    func reviewStoryCard(_ story: RecentStory,
                          height: CGFloat = FeedLayout.cardHeight,
                          headline: String? = nil,
                          lineLimit: Int = 2) -> some View {
+        VStack(spacing: 0) {
+            ZStack(alignment: .bottomLeading) {
+                Image(story.imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity)
+                    .frame(height: height)
+                    .clipShape(TopCorners(radius: FeedLayout.cardCornerRadius))
+                    .clipped()
+
+                Text(headline ?? story.headline)
+                    .typography(Typography.recentStoryTitle)
+                    .foregroundStyle(Color.white)
+                    .lineLimit(lineLimit)
+                    .padding(.leading, FeedLayout.cardTextLeading)
+                    .padding(.bottom, FeedLayout.cardTextBottom)
+            }
+
+            storyFooterPanel {
+                HStack(spacing: 6) {
+                    Image(story.avatarImageName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: FeedLayout.reviewAvatarSize, height: FeedLayout.reviewAvatarSize)
+                        .clipShape(Circle())
+
+                    Text(story.authorName)
+                        .typography(Typography.storyHeadline)
+                        .foregroundStyle(Palette.textPrimary)
+
+                    Spacer()
+
+                    HStack(spacing: 2) {
+                        Image(systemName: "heart.fill")
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundStyle(Palette.textSecondary)
+                        Text("\(story.likes)")
+                            .typography(Typography.bodyPrimary)
+                            .foregroundStyle(Palette.textSecondary)
+                    }
+                }
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
+                .strokeBorder(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
+        )
+        .contentShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
+    }
+
+    private func recentStoryPreviewCard(_ story: RecentStory,
+                                        height: CGFloat = FeedLayout.cardHeight,
+                                        headline: String? = nil,
+                                        lineLimit: Int = 2) -> some View {
         ZStack(alignment: .bottomLeading) {
             Image(story.imageName)
                 .resizable()
                 .scaledToFill()
                 .frame(maxWidth: .infinity)
                 .frame(height: height)
+                .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
                 .clipped()
 
             Text(headline ?? story.headline)
@@ -367,6 +431,18 @@ private extension FeedView {
                 .strokeBorder(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
         )
         .contentShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
+    }
+
+    private func storyFooterPanel<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            content()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 16)
+        .padding(.bottom, 22)
+        .padding(.horizontal, FeedLayout.cardTextLeading)
+        .background(Color.surface)
+        .clipShape(BottomCorners(radius: FeedLayout.cardCornerRadius))
     }
 }
 
