@@ -10,7 +10,7 @@ private enum FeedLayout {
     static let contentVerticalInset: CGFloat = 4
     static let sectionHorizontalInset: CGFloat = 18
     static let headingIconSpacing: CGFloat = 2
-    static let cardTextLeading: CGFloat = 18
+    static let cardTextLeading: CGFloat = 22
     static let cardTextBottom: CGFloat = 10
     static let cardCornerRadius: CGFloat = 12
     static let cardStrokeWidth: CGFloat = 1
@@ -131,6 +131,7 @@ struct FeedView: View {
             Text("New from friends")
                 .typography(Typography.sectionTitle)
                 .padding(.top, FeedLayout.titleTopPadding)
+                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
                 .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 .padding(.bottom, FeedLayout.headingVerticalPadding)
 
@@ -150,6 +151,7 @@ struct FeedView: View {
             Text("Popular this week")
                 .typography(Typography.sectionTitle)
                 .padding(.top, FeedLayout.titleTopPadding)
+                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
                 .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 .padding(.bottom, FeedLayout.headingVerticalPadding)
 
