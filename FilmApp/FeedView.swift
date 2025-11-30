@@ -10,8 +10,8 @@ private enum FeedLayout {
     static let contentVerticalInset: CGFloat = 4
     static let sectionHorizontalInset: CGFloat = 18
     static let headingIconSpacing: CGFloat = 2
-    static let cardTextLeading: CGFloat = 22
-    static let cardTextBottom: CGFloat = 10
+    static let cardTextLeading: CGFloat = 16
+    static let cardTextBottom: CGFloat = 14
     static let cardCornerRadius: CGFloat = 12
     static let cardStrokeWidth: CGFloat = 1
     static let cardHeight: CGFloat = 120
@@ -19,7 +19,7 @@ private enum FeedLayout {
     static let posterImageHeight: CGFloat = 120
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
     static let reviewAvatarSize: CGFloat = 18
-    static let reviewsCardWidth: CGFloat = 332
+    static let reviewsCardWidth: CGFloat = 357
 }
 
 struct FeedView: View {
@@ -54,7 +54,29 @@ struct FeedView: View {
         .init(imageName: "urchin")
     ]
     private let switcherGlass = Color(hex: "F5F5F5").opacity(0.1)
-    private let perfectDaysStory = RecentStory(title: "", subtitle: "", authorName: "Karsten", likes: 29, rating: 4, avatarImageName: "karsten_avatar", imageName: "perfect_days")
+    private let reviewStories: [RecentStory] = [
+        .init(title: "With the Stars:",
+              subtitle: "A Tribute to David Lynch",
+              authorName: "Karsten",
+              likes: 29,
+              rating: 4,
+              avatarImageName: "karsten_avatar",
+              imageName: "david_lynch_article"),
+        .init(title: "Perfect Days:",
+              subtitle: "Midday in Tokyo",
+              authorName: "Masha",
+              likes: 18,
+              rating: 5,
+              avatarImageName: "karsten_avatar",
+              imageName: "perfect_days"),
+        .init(title: "Die My Love:",
+              subtitle: "Catching the new drops",
+              authorName: "Clay",
+              likes: 12,
+              rating: 4,
+              avatarImageName: "karsten_avatar",
+              imageName: "die_my_love")
+    ]
  
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -209,17 +231,18 @@ struct FeedView: View {
             .padding(.bottom, FeedLayout.headingVerticalPadding)
             .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
-            HStack {
-                Spacer()
-            reviewStoryCard(perfectDaysStory,
-                            height: 100,
-                            headline: "Perfect Days (2023)",
-                            lineLimit: 1)
-                    .frame(width: FeedLayout.reviewsCardWidth)
-                Spacer()
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(alignment: .top, spacing: 12) {
+                    ForEach(reviewStories) { story in
+                        reviewStoryCard(story, height: FeedLayout.cardHeight)
+                            .frame(width: FeedLayout.reviewsCardWidth)
+                    }
+                }
+                .scrollTargetLayout()
             }
+            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
+            .scrollTargetBehavior(.viewAligned)
         }
-        .frame(maxWidth: .infinity)
     }
 }
 
@@ -336,7 +359,8 @@ private struct PosterCard: View {
     }
 }
 
-private struct RecentStory {
+private struct RecentStory: Identifiable {
+    let id = UUID()
     let title: String
     let subtitle: String
     let authorName: String
@@ -361,7 +385,7 @@ private extension FeedView {
                     .resizable()
                     .scaledToFill()
                     .frame(maxWidth: .infinity)
-                    .frame(height: height)
+                    .frame(height: height, alignment: .top)
                     .clipShape(TopCorners(radius: FeedLayout.cardCornerRadius))
                     .overlay(
                         TopCorners(radius: FeedLayout.cardCornerRadius)
@@ -410,7 +434,7 @@ private extension FeedView {
                         }
                     }
 
-                    Text("Didn’t know a ton about this going into it, especially the similarities to paterson. watching a guy read books, listen to music, and work toilets shouldn’t be this riveting, but it is. and that’s the kind of stuff i can’t get enough of because when you get")
+                    Text("35mm at the Hollywood Theatre, which was a dream come true. Feels good to have seen this one on film, with an audience, in a theater; feels bad to remember that Diane Keaton isn't with us anymore. Got a bit emotional during her scene at the Tennis Court (La-di-da, la-di-da, la la) and ditto to hearing her performance of Seems Like Old Times through the theater's speaker system. You can tell Woody cared about her a lot")
                         .typography(Typography.bodyPrimary)
                         .foregroundStyle(Palette.textSecondary)
                         .lineLimit(3)
