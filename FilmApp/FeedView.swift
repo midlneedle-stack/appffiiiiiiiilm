@@ -372,27 +372,34 @@ private extension FeedView {
             }
 
             storyFooterPanel {
-                HStack(spacing: 6) {
-                    Image(story.avatarImageName)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: FeedLayout.reviewAvatarSize, height: FeedLayout.reviewAvatarSize)
-                        .clipShape(Circle())
+                VStack(alignment: .leading, spacing: 10) {
+                    HStack(spacing: 6) {
+                        Image(story.avatarImageName)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: FeedLayout.reviewAvatarSize, height: FeedLayout.reviewAvatarSize)
+                            .clipShape(Circle())
 
-                    Text(story.authorName)
-                        .typography(Typography.storyHeadline)
-                        .foregroundStyle(Palette.textPrimary)
+                        Text(story.authorName)
+                            .typography(Typography.storyHeadline)
+                            .foregroundStyle(Palette.textPrimary)
 
-                    Spacer()
+                        Spacer()
 
-                    HStack(spacing: 2) {
-                        Image(systemName: "heart.fill")
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundStyle(Palette.textSecondary)
-                        Text("\(story.likes)")
-                            .typography(Typography.bodyPrimary)
-                            .foregroundStyle(Palette.textSecondary)
+                        HStack(spacing: 2) {
+                            Image(systemName: "heart.fill")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundStyle(Palette.textSecondary)
+                            Text("\(story.likes)")
+                                .typography(Typography.bodyPrimary)
+                                .foregroundStyle(Palette.textSecondary)
+                        }
                     }
+
+                    Text("Didn’t know a ton about this going into it, especially the similarities to paterson. watching a guy read books, listen to music, and work toilets shouldn’t be this riveting, but it is. and that’s the kind of stuff i can’t get enough of because when you get")
+                        .typography(Typography.bodyPrimary)
+                        .foregroundStyle(Palette.textSecondary)
+                        .lineLimit(3)
                 }
             }
         }

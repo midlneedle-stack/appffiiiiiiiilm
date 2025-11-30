@@ -10,15 +10,15 @@ enum Typography {
 
     // -2% tracking applied
     static let titleNav = Style(font: .system(size: 20, weight: .medium),
-                                tracking: -0.4,
+                                tracking: -0.2,
                                 lineSpacing: nil)
 
     static let pillSegment = Style(font: .system(size: 14, weight: .medium),
-                                   tracking: -0.28,
+                                   tracking: -0.2,
                                    lineSpacing: nil)
 
     static let sectionTitle = Style(font: .system(size: 26, weight: .semibold),
-                                    tracking: -0.52,
+                                    tracking: -0.2,
                                     lineSpacing: nil)
 
     static let cardTitle = Style(font: .system(size: 10, weight: .medium),
@@ -26,27 +26,27 @@ enum Typography {
                                  lineSpacing: nil)
 
     static let cardMeta = Style(font: .system(size: 8, weight: .medium),
-                                tracking: -0.18,
+                                tracking: -0.2,
                                 lineSpacing: nil)
 
     static let storyHeadline = Style(font: .system(size: 16, weight: .medium),
-                                     tracking: -0.32,
+                                     tracking: -0.2,
                                      lineSpacing: nil)
 
     static let recentStoryTitle = Style(font: .system(size: 16, weight: .semibold),
-                                        tracking: -0.32,
+                                        tracking: -0.2,
                                         lineSpacing: 0)
 
     static let bodyPrimary = Style(font: .system(size: 14, weight: .medium),
-                                   tracking: -0.28,
-                                   lineSpacing: 4) // ~18pt line height target
+                                   tracking: -0.2,
+                                   lineSpacing: 0) // ~18pt line height target
 
     static let bodySecondary = Style(font: .system(size: 14, weight: .medium),
-                                     tracking: -0.28,
+                                     tracking: -0.2,
                                      lineSpacing: nil)
 
     static let buttonLabel = Style(font: .system(size: 14, weight: .medium),
-                                   tracking: -0.28,
+                                   tracking: -0.2,
                                    lineSpacing: nil)
 
     static let starRating = Style(font: .system(size: 10, weight: .medium),
@@ -59,7 +59,7 @@ enum Typography {
                                 lineSpacing: nil)
 
     static let tabTitleLarge = Style(font: .system(size: 17, weight: .medium),
-                                     tracking: -0.34,
+                                     tracking: -0.2,
                                      lineSpacing: nil)
 }
 
