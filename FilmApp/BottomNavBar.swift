@@ -54,7 +54,7 @@ struct BottomNavBar: View {
         .frame(height: 60)
         .background(barGlass)
         .liquidGlass(shape: Capsule(), strokeColor: Color.black.opacity(0.1))
-        .shadow(color: .black.opacity(0.28), radius: 36, x: 0, y: 8)
+        .shadow(color: .black.opacity(0.08), radius: 14, x: 0, y: 8)
     }
 
     private func tabButton(for tab: Tab) -> some View {
@@ -69,7 +69,7 @@ struct BottomNavBar: View {
             VStack(spacing: iconTextSpacing) {
                 Image(systemName: tab.icon(isActive: isActive))
                     .font(.system(size: tab == .profile ? 20 : 17,
-                                  weight: .medium))
+                                  weight: .regular))
                     .frame(width: 20, height: 20) // Uniform frame keeps text aligned across tabs
                 Text(tab.title)
                     .font(.system(size: 10, weight: .medium)) // Matches provided spec (SF Pro, Medium, 10pt)
@@ -105,7 +105,7 @@ struct BottomNavBar: View {
                 .background(barGlass)
                 .liquidGlass(shape: Capsule(), strokeColor: Color.black.opacity(0.1))
         }
-        .shadow(color: .black.opacity(0.28), radius: 36, x: 0, y: 8)
+        .shadow(color: .black.opacity(0.08), radius: 14, x: 0, y: 8)
         .buttonStyle(.plain)
     }
 }
