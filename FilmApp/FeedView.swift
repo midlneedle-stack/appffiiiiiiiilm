@@ -363,6 +363,10 @@ private extension FeedView {
                     .frame(maxWidth: .infinity)
                     .frame(height: height)
                     .clipShape(TopCorners(radius: FeedLayout.cardCornerRadius))
+                    .overlay(
+                        TopCorners(radius: FeedLayout.cardCornerRadius)
+                            .stroke(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
+                    )
                     .clipped()
 
                 Text(headline ?? story.headline)
@@ -415,10 +419,6 @@ private extension FeedView {
         }
         .frame(maxWidth: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
-                .strokeBorder(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
-        )
         .contentShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
     }
 
@@ -462,6 +462,10 @@ private extension FeedView {
         .padding(.horizontal, FeedLayout.cardTextLeading)
         .background(Color.surface)
         .clipShape(BottomCorners(radius: FeedLayout.cardCornerRadius))
+        .overlay(
+            BottomCorners(radius: FeedLayout.cardCornerRadius)
+                .stroke(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
+        )
     }
 }
 
