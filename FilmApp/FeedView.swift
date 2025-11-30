@@ -42,6 +42,7 @@ struct FeedView: View {
                                           subtitle: "A Tribute to David Lynch",
                                           authorName: "Karsten",
                                           likes: 29,
+                                          rating: 4,
                                           avatarImageName: "karsten_avatar",
                                           imageName: "david_lynch_article")
     private let popularItems: [PosterItem] = [
@@ -53,7 +54,7 @@ struct FeedView: View {
         .init(imageName: "urchin")
     ]
     private let switcherGlass = Color(hex: "F5F5F5").opacity(0.1)
-    private let perfectDaysStory = RecentStory(title: "", subtitle: "", authorName: "Karsten", likes: 29, avatarImageName: "karsten_avatar", imageName: "perfect_days")
+    private let perfectDaysStory = RecentStory(title: "", subtitle: "", authorName: "Karsten", likes: 29, rating: 4, avatarImageName: "karsten_avatar", imageName: "perfect_days")
  
     var body: some View {
         ZStack(alignment: .bottom) {
@@ -340,6 +341,7 @@ private struct RecentStory {
     let subtitle: String
     let authorName: String
     let likes: Int
+    let rating: Int
     let avatarImageName: String
     let imageName: String
 
@@ -393,6 +395,14 @@ private extension FeedView {
                             Text("\(story.likes)")
                                 .typography(Typography.bodyPrimary)
                                 .foregroundStyle(Palette.textSecondary)
+                        }
+                    }
+
+                    HStack(spacing: 0) {
+                        ForEach(0..<5) { index in
+                            Image(systemName: index < story.rating ? "star.fill" : "star")
+                                .font(Typography.starRating.font)
+                                .foregroundStyle(Palette.textPrimary)
                         }
                     }
 
