@@ -1,12 +1,11 @@
 {
   "images" : [
     {
-      "filename" : "karsten_avatar.png",
+      "filename" : "christmas_again.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "avatar_masha.png",
       "idiom" : "universal",
       "scale" : "2x"
     },

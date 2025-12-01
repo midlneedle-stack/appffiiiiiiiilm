@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "perfect_days.png",
+      "filename" : "Courier.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Annie_hall.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "drive_my_car.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

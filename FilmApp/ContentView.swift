@@ -1,15 +1,52 @@
-//
-//  ContentView.swift
-//  FilmApp
-//
-//  Created by Vladislav Ivanov on 27.11.2025.
-//
-
 import SwiftUI
 
 struct ContentView: View {
+    @State private var selectedTab: Tab = .feed
+
     var body: some View {
-        FeedView()
+        GeometryReader { proxy in
+            ZStack(alignment: .bottom) {
+                FeedView()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+
+                Rectangle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: Color(.systemBackground).opacity(0.0), location: 0),
+                                .init(color: Color(.systemBackground).opacity(0.6), location: 0.5),
+                                .init(color: Color(.systemBackground).opacity(1.0), location: 1)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(height: 148)
+                    .allowsHitTesting(false)
+
+                BottomNavBar(selectedTab: $selectedTab)
+                    .zIndex(1)
+                    .padding(.bottom, proxy.safeAreaInsets.bottom)
+            }
+            .ignoresSafeArea(edges: .bottom)
+            .overlay(alignment: .top) {
+                Rectangle()
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: Color(.systemBackground).opacity(0.9), location: 0),
+                                .init(color: Color(.systemBackground).opacity(0.8), location: 0.32),
+                                .init(color: Color(.systemBackground).opacity(0.6), location: 0.62),
+                                .init(color: Color(.systemBackground).opacity(0.0), location: 1)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                    .frame(height: proxy.safeAreaInsets.top)
+                    .ignoresSafeArea(edges: .top)
+            }
+        }
     }
 }
 
