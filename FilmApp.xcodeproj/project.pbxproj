@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		863FB3E62EDED9B70056549B /* VariableBlur in Frameworks */ = {isa = PBXBuildFile; productRef = 863FB3E52EDED9B70056549B /* VariableBlur */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		865172762ED842920044BAEF /* FilmApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FilmApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -23,6 +27,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				863FB3E62EDED9B70056549B /* VariableBlur in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +70,7 @@
 			);
 			name = FilmApp;
 			packageProductDependencies = (
+				863FB3E52EDED9B70056549B /* VariableBlur */,
 			);
 			productName = FilmApp;
 			productReference = 865172762ED842920044BAEF /* FilmApp.app */;
@@ -94,6 +100,9 @@
 			);
 			mainGroup = 8651726D2ED842920044BAEF;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				863FB3E42EDED9B70056549B /* XCRemoteSwiftPackageReference "VariableBlur" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 865172772ED842920044BAEF /* Products */;
 			projectDirPath = "";
@@ -328,6 +337,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		863FB3E42EDED9B70056549B /* XCRemoteSwiftPackageReference "VariableBlur" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nikstar/VariableBlur";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		863FB3E52EDED9B70056549B /* VariableBlur */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 863FB3E42EDED9B70056549B /* XCRemoteSwiftPackageReference "VariableBlur" */;
+			productName = VariableBlur;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 8651726E2ED842920044BAEF /* Project object */;
 }

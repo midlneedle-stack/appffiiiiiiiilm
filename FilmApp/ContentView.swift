@@ -9,20 +9,24 @@ struct ContentView: View {
                 FeedView()
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                Rectangle()
-                    .fill(
-                        LinearGradient(
-                            gradient: Gradient(stops: [
-                                .init(color: Color(.systemBackground).opacity(0.0), location: 0),
-                                .init(color: Color(.systemBackground).opacity(0.6), location: 0.5),
-                                .init(color: Color(.systemBackground).opacity(1.0), location: 1)
-                            ]),
-                            startPoint: .top,
-                            endPoint: .bottom
+                ZStack {
+                    VariableBlurView(maxBlurRadius: 2, direction: .blurredBottomClearTop)
+                        .frame(height: 148)
+                    Rectangle()
+                        .fill(
+                            LinearGradient(
+                                gradient: Gradient(stops: [
+                                    .init(color: Color(.systemBackground).opacity(0.0), location: 0),
+                                    .init(color: Color(.systemBackground).opacity(0.6), location: 0.5),
+                                    .init(color: Color(.systemBackground).opacity(1.0), location: 1)
+                                ]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
                         )
-                    )
-                    .frame(height: 148)
-                    .allowsHitTesting(false)
+                        .frame(height: 148)
+                }
+                .allowsHitTesting(false)
 
                 BottomNavBar(selectedTab: $selectedTab)
                     .zIndex(1)
