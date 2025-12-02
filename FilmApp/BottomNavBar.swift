@@ -30,7 +30,7 @@ struct BottomNavBar: View {
     @Namespace private var selectionNamespace
     @Environment(\.displayScale) private var displayScale
 
-    private let barGlass = Color(hex: "D8D8D8").opacity(0.6)
+    private let barGlass = Color(hex: "D8D8D8").opacity(0.2)
 
     var body: some View {
         Color.clear
@@ -54,7 +54,7 @@ struct BottomNavBar: View {
         .frame(height: 60)
         .background(barGlass)
         .liquidGlass(shape: Capsule(), strokeColor: Color.black.opacity(0.1))
-        .shadow(color: .black.opacity(0.08), radius: 14, x: 0, y: 8)
+        .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 6)
     }
 
     private func tabButton(for tab: Tab) -> some View {
@@ -105,7 +105,7 @@ struct BottomNavBar: View {
                 .background(barGlass)
                 .liquidGlass(shape: Capsule(), strokeColor: Color.black.opacity(0.1))
         }
-        .shadow(color: .black.opacity(0.08), radius: 14, x: 0, y: 8)
+        .shadow(color: .black.opacity(0.1), radius: 20, x: 0, y: 6)
         .buttonStyle(.plain)
     }
 }
