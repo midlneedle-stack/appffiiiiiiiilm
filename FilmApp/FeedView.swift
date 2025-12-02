@@ -30,7 +30,7 @@ struct FeedView: View {
         .init(name: "Petar", rating: 5, imageName: "i_like_movies"),
         .init(name: "Nick", rating: 4, imageName: "the_master"),
         .init(name: "David", rating: 4, imageName: "train-dreams"),
-        .init(name: "Alexander", rating: 5, imageName: "sentimental-value"),
+        .init(name: "Alex...", rating: 5, imageName: "sentimental-value"),
         .init(name: "Clay", rating: 4, imageName: "columbus"),
         .init(name: "Sonya", rating: 4, imageName: "marriage_story"),
         .init(name: "Lana", rating: 5, imageName: "blow_up"),

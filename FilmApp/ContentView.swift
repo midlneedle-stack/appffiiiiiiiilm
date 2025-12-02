@@ -28,7 +28,7 @@ struct ContentView: View {
                 }
                 .allowsHitTesting(false)
 
-                BottomNavBar(selectedTab: $selectedTab)
+                TabBar(selectedTab: $selectedTab)
                     .zIndex(1)
                     .padding(.bottom, proxy.safeAreaInsets.bottom)
             }

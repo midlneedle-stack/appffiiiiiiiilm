@@ -25,7 +25,7 @@ enum Tab: String, CaseIterable {
     }
 }
 
-struct BottomNavBar: View {
+struct TabBar: View {
     @Binding var selectedTab: Tab
     @Namespace private var selectionNamespace
     @Environment(\.displayScale) private var displayScale
@@ -126,7 +126,7 @@ struct BottomNavBar: View {
         }
         .background(Color(.systemBackground))
         .overlay(alignment: .bottom) {
-            BottomNavBar(selectedTab: selection)
+            TabBar(selectedTab: selection)
         }
     }
 }

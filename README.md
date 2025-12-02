@@ -10,6 +10,8 @@
 
 - **Respect user edits.** If you see changes that the user made (especially outside your current edits), leave them untouched unless they explicitly ask you to revert or adjust that work.
 
+- **iOS 26 nav rules.** Navigation Bar → Toolbar rename, Liquid Glass toolbar APIs, and tab-bar customization details live here as a working reference (see section below).
+
 If you are unsure about a change, check with the owner before touching values that may have been tuned by hand.
 
 ## System Prompt & Coding Principles
@@ -67,3 +69,347 @@ You are an expert Senior iOS Engineer at Apple.
 
 # appffiiiiiiiilm
 ios_prod_dis_exp
+
+## iOS 26 Navigation & Liquid Glass Notes
+
+### Tab Bar in iOS 26
+Updated behaviors, new roles, accessory placement, and expanded customization APIs for the bottom bar (floating tab bar) model.
+
+#### New Features in iOS 26 (June 2025)
+
+##### `tabBarMinimizeBehavior(_:)`
+Controls how the tab bar collapses or expands depending on user scroll interaction.
+
+```swift
+TabView {
+    // tabs
+}
+.tabBarMinimizeBehavior(.automatic)
+```
+
+##### `TabRole.search`
+
+Assigns a **search role** to a tab. Activating such a tab replaces the tab bar with a focused search view.
+
+```swift
+TabView {
+    Tab("Home", systemImage: "house") {
+        HomeView()
+    }
+
+    Tab("Search", systemImage: "magnifyingglass", role: .search) {
+        SearchView()
+            .searchable(text: $searchText)
+    }
+}
+```
+
+##### `TabViewBottomAccessoryPlacement`
+
+Controls how accessory views render above the tab bar depending on its current state (inline, expanded, etc.).
+
+```swift
+TabView {
+    // tabs
+}
+.tabViewBottomAccessory {
+    MiniPlayerView()
+        .tabViewBottomAccessoryPlacement { placement in
+            switch placement {
+            case .expanded:
+                FullPlayerView()
+            case .inline:
+                CompactPlayerView()
+            default:
+                EmptyView()
+            }
+        }
+}
+```
+
+This enables dynamic bottom overlays—e.g., music players, Now Playing bars, tool palettes.
+
+#### Features Introduced in iOS 25 (June 2024)
+
+##### `tabViewStyle(_:)`
+Defines device-aware tab view appearance (`.sidebarAdaptable`, `.tabBarOnly`, `.grouped`).
+
+##### `TabSection`
+Groups tabs into sections such as “More” without leaving the TabView.
+
+##### `tabViewCustomization(_:)`
+Exposes `TabViewCustomization` through `@AppStorage` so users can reorder and hide tabs.
+
+#### Full Example for iOS 26
+
+```swift
+struct ContentView: View {
+    @State private var searchText = ""
+    @AppStorage("tabCustomization") private var customization: TabViewCustomization
+
+    var body: some View {
+        TabView {
+            Tab("Home", systemImage: "house") {
+                ScrollView {
+                    HomeContent()
+                }
+            }
+
+            Tab("Browse", systemImage: "square.grid.2x2") {
+                BrowseView()
+            }
+
+            Tab("Search", systemImage: "magnifyingglass", role: .search) {
+                SearchView()
+                    .searchable(text: $searchText)
+            }
+
+            TabSection("More") {
+                Tab("Library", systemImage: "books.vertical") {
+                    LibraryView()
+                }
+
+                Tab("Settings", systemImage: "gear") {
+                    SettingsView()
+                }
+            }
+        }
+        .tabViewStyle(.sidebarAdaptable)
+        .tabViewCustomization($customization)
+        .tabBarMinimizeBehavior(.automatic)
+    }
+}
+```
+
+Reference: https://developer.apple.com/documentation/swiftui/navigation
+
+### Navigation Bar → Toolbar (iOS 26)
+In iOS 26 Apple renamed the old **Navigation Bar** into the **Toolbar**, including the upper navigation APIs now using the `toolbar` prefix.
+
+#### Key Components
+- **`ToolbarSpacer`** – keeps toolbar items spaced correctly while respecting Liquid Glass styling.
+- **`scrollEdgeEffectStyle(_:for:)`** – configures scroll-edge visual effects on scroll views.
+- **`backgroundExtensionEffect()`** – extends, reflects, and blurs visuals beyond the safe area.
+
+#### Example
+```swift
+NavigationStack {
+    ScrollView {
+        // Content
+    }
+    .navigationTitle("Title")
+    .toolbar {
+        ToolbarItem(placement: .topBarLeading) {
+            Button("Action") { }
+        }
+        ToolbarSpacer()
+        ToolbarItem(placement: .topBarTrailing) {
+            Button("Settings") { }
+        }
+    }
+    .scrollEdgeEffectStyle(.automatic, for: .scrollView)
+}
+```
+
+### Liquid Glass Integration
+
+iOS 26 adds native Liquid Glass support for toolbars.
+
+#### New APIs
+* **`glassEffect(_:in:)`** – applies Liquid Glass to any view.
+* **`.glass` button style** – gives buttons a Liquid Glass treatment.
+
+### Migration Notes
+
+| iOS 25 | iOS 26 |
+| --- | --- |
+| Navigation Bar | **Toolbar** |
+| `navigationBarItems` | `toolbar` / `ToolbarItem` |
+| manual `Spacer()` | `ToolbarSpacer` |
+
+#### New in iOS 26
+* Liquid Glass toolbars.
+* Unified toolbar terminology.
+
+#### Deprecated / Review
+* `navigationBarItems`
+* Empty `Spacer()` hooks (replace with `ToolbarSpacer`)
+
+## Tab Bar in iOS 26
+Updated behaviors, new roles, accessory placement, and expanded customization APIs.
+
+---
+
+## New Features in iOS 26 (June 2025)
+
+### `tabBarMinimizeBehavior(_:)`
+Controls how the tab bar collapses or expands depending on user scroll interaction.
+
+```swift
+TabView {
+    // tabs
+}
+.tabBarMinimizeBehavior(.automatic)
+```
+
+---
+
+### `TabRole.search`
+
+Assigns a **search role** to a tab.
+When activated, the **tab bar transforms into a search field**, giving full focus to search.
+
+```swift
+TabView {
+    Tab("Home", systemImage: "house") {
+        HomeView()
+    }
+    
+    Tab("Search", systemImage: "magnifyingglass", role: .search) {
+        SearchView()
+            .searchable(text: $searchText)
+    }
+}
+```
+
+---
+
+### `TabViewBottomAccessoryPlacement`
+
+Controls how accessory views render above the tab bar depending on its current state (inline, expanded, etc.).
+
+```swift
+TabView {
+    // tabs
+}
+.tabViewBottomAccessory {
+    MiniPlayerView()
+        .tabViewBottomAccessoryPlacement { placement in
+            switch placement {
+            case .expanded:
+                FullPlayerView()   // expanded state
+            case .inline:
+                CompactPlayerView() // inline state
+            default:
+                EmptyView()
+            }
+        }
+}
+```
+
+This enables dynamic bottom overlays—e.g., music players, now-playing bars, tool palettes.
+
+---
+
+## Features Introduced in iOS 25 (June 2024)
+
+### `tabViewStyle(_:)`
+
+Defines how `TabView` appears and behaves across device classes.
+
+```swift
+TabView {
+    // tabs
+}
+.tabViewStyle(.sidebarAdaptable)
+```
+
+**Available styles:**
+
+* `.sidebarAdaptable` — sidebar on iPad, tab bar on iPhone
+* `.tabBarOnly` — tab bar without sidebar
+* `.grouped` — grouped tab UI
+
+---
+
+### `TabSection`
+
+Creates hierarchical tabs by grouping them into sections.
+
+```swift
+TabView {
+    Tab("Home", systemImage: "house") {
+        HomeView()
+    }
+
+    TabSection("More") {
+        Tab("Library", systemImage: "books.vertical") {
+            LibraryView()
+        }
+
+        Tab("Settings", systemImage: "gear") {
+            SettingsView()
+        }
+    }
+}
+```
+
+---
+
+### `tabViewCustomization(_:)`
+
+Enables user-controlled tab customization (ordering, visibility).
+State persists via `@AppStorage` using `TabViewCustomization`.
+
+```swift
+@AppStorage("tabCustomization") private var customization: TabViewCustomization
+
+TabView {
+    Tab("Home", systemImage: "house") {
+        HomeView()
+    }
+    
+    Tab("Browse", systemImage: "square.grid.2x2") {
+        BrowseView()
+    }
+}
+.tabViewCustomization($customization)
+```
+
+---
+
+## Full Example for iOS 26
+
+```swift
+struct ContentView: View {
+    @State private var searchText = ""
+    @AppStorage("tabCustomization") private var customization: TabViewCustomization
+    
+    var body: some View {
+        TabView {
+            Tab("Home", systemImage: "house") {
+                ScrollView {
+                    HomeContent()
+                }
+            }
+            
+            Tab("Browse", systemImage: "square.grid.2x2") {
+                BrowseView()
+            }
+            
+            Tab("Search", systemImage: "magnifyingglass", role: .search) {
+                SearchView()
+                    .searchable(text: $searchText)
+            }
+            
+            TabSection("More") {
+                Tab("Library", systemImage: "books.vertical") {
+                    LibraryView()
+                }
+                
+                Tab("Settings", systemImage: "gear") {
+                    SettingsView()
+                }
+            }
+        }
+        .tabViewStyle(.sidebarAdaptable)
+        .tabViewCustomization($customization)
+        .tabBarMinimizeBehavior(.automatic)
+    }
+}
+```
+
+---
+
+Reference: Apple SwiftUI Navigation Documentation
+[https://developer.apple.com/documentation/swiftui/navigation](https://developer.apple.com/documentation/swiftui/navigation)
