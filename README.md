@@ -8,6 +8,8 @@
 - **Reuse style tokens.** When adjusting spacing, typography, or colors, favor the existing enums (`Typography`, `Palette`, `FeedLayout`, etc.) so spacing changes stay consistent across the UI.
 - **Horizontal scroll padding.** When designing horizontal scroll views, give them 18pt horizontal breathing room with `.contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)` so the first/last cards never start flush against the screen yet still scroll all the way to the edges; don’t revert this by reintroducing `padding(.horizontal, …)` on the parent.
 
+- **Respect user edits.** If you see changes that the user made (especially outside your current edits), leave them untouched unless they explicitly ask you to revert or adjust that work.
+
 If you are unsure about a change, check with the owner before touching values that may have been tuned by hand.
 
 ## System Prompt & Coding Principles

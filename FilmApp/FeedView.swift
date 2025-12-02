@@ -23,7 +23,6 @@ private enum FeedLayout {
 }
 
 struct FeedView: View {
-    @State private var selectedTab: Tab = .feed
     @State private var selectedSegment: FeedSegment = .all
     private let newFromFriendsItems: [FriendItem] = [
         .init(name: "Egor", rating: 4, imageName: "challengers"),
@@ -44,7 +43,8 @@ struct FeedView: View {
                                           likes: 29,
                                           rating: 4,
                                           avatarImageName: "karsten_avatar",
-                                          imageName: "david_lynch_article")
+                                          imageName: "david_lynch_article",
+                                          body: "An intimate portrait of two artists trying to share a moment before the credits roll.")
     private let popularItems: [PosterItem] = [
         .init(imageName: "die_my_love"),
         .init(imageName: "if_i_had_legs_id_kick_you"),
@@ -55,48 +55,63 @@ struct FeedView: View {
     ]
     private let switcherGlass = Color(hex: "F5F5F5").opacity(0.1)
     private let reviewStories: [RecentStory] = [
-        .init(title: "With the Stars:",
-              subtitle: "A Tribute to David Lynch",
+        .init(title: "",
+              subtitle: "Her (2013)",
               authorName: "Karsten",
               likes: 29,
-              rating: 4,
-              avatarImageName: "karsten_avatar",
-              imageName: "david_lynch_article"),
-        .init(title: "Perfect Days:",
-              subtitle: "Midday in Tokyo",
+              rating: 5,
+              avatarImageName: "karsssten",
+              imageName: "her",
+              body: """
+              without getting too personal, this film just helped me a lot. when you’re happy this thing can really put you down. but when you’re down it takes a big warm blanket and wraps it around you.
+              """),
+        .init(title: "",
+              subtitle: "Frances Ha (2012)",
               authorName: "Masha",
               likes: 18,
-              rating: 5,
-              avatarImageName: "karsten_avatar",
-              imageName: "perfect_days"),
-        .init(title: "Die My Love:",
-              subtitle: "Catching the new drops",
+              rating: 4,
+              avatarImageName: "masha",
+              imageName: "frances_ha",
+              body: """
+              i somehow grow to love benji even more each time i watch this, and crave the kind of relationship he has with frances. the sharing of new music, and movie nights, and leaving the door ajar so frances can call out in the night if she needs him. the way they created their own language in how they look at each other, which still exists even after not seeing each other for quite some time. it’s such a sweet, simple bond built around small gestures and providing care... benji has a special kind of magic about him.
+              """),
+        .init(title: "",
+              subtitle: "Courier (1986)",
               authorName: "Clay",
               likes: 12,
               rating: 4,
+              avatarImageName: "clay",
+              imageName: "courier",
+              body: """
+              Catcher in the Rye, but URSS. I loved it. I think its about kids who grew up to fast, who are not ready to be adults, but they try to play until the society forces the childhood out of them. A great sense of loneliness and need for freedom.
+              """),
+        .init(title: "",
+              subtitle: "Christmas Again (2023)",
+              authorName: "Ivan",
+              likes: 23,
+              rating: 5,
               avatarImageName: "karsten_avatar",
-              imageName: "die_my_love")
+              imageName: "christmas_again",
+              body: """
+              I just adore this imperfect mumblecore shot on 16mm by the one and only Sean Price Williams. Christmas, Again is a type of movie that makes you get under a blanket and drink hot chocolate while listening to Christmas songs by Sufjan Stevens and Phoebe Bridgers whose songs are filled with melancholy and loneliness of this time of year, so it’s pretty much perfect for me.
+              """)
     ]
  
     var body: some View {
-        ZStack(alignment: .bottom) {
-            ScrollView(showsIndicators: false) {
-                VStack(alignment: .leading, spacing: 24) {
-                    header
-                        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
-                    segmentSwitcher
-                        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
-                    newFromFriends
-                    recentStories
-                    popularThisWeek
-                    reviewsFromFriends
-                    // TODO: Subsequent sections (lists/cards) with 36pt spacing
-                }
-                .padding(.top, FeedLayout.topContentPadding)
-                .padding(.bottom, 120) // space for bottom bar overlap4
+        ScrollView(showsIndicators: false) {
+            VStack(alignment: .leading, spacing: 24) {
+                header
+                    .padding(.horizontal, FeedLayout.sectionHorizontalInset)
+                segmentSwitcher
+                    .padding(.horizontal, FeedLayout.sectionHorizontalInset)
+                newFromFriends
+                recentStories
+                popularThisWeek
+                reviewsFromFriends
+                // TODO: Subsequent sections (lists/cards) with 36pt spacing
             }
-
-            BottomNavBar(selectedTab: $selectedTab)
+            .padding(.top, FeedLayout.topContentPadding)
+            .padding(.bottom, 120)
         }
         .background(Color.white)
     }
@@ -368,6 +383,7 @@ private struct RecentStory: Identifiable {
     let rating: Int
     let avatarImageName: String
     let imageName: String
+    let body: String
 
     var headline: String {
         "\(title)\n\(subtitle)"
@@ -434,10 +450,10 @@ private extension FeedView {
                         }
                     }
 
-                    Text("35mm at the Hollywood Theatre, which was a dream come true. Feels good to have seen this one on film, with an audience, in a theater; feels bad to remember that Diane Keaton isn't with us anymore. Got a bit emotional during her scene at the Tennis Court (La-di-da, la-di-da, la la) and ditto to hearing her performance of Seems Like Old Times through the theater's speaker system. You can tell Woody cared about her a lot")
-                        .typography(Typography.bodyPrimary)
-                        .foregroundStyle(Palette.textSecondary)
-                        .lineLimit(3)
+                Text(story.body)
+                    .typography(Typography.bodyPrimary)
+                    .foregroundStyle(Palette.textSecondary)
+                    .lineLimit(3)
                 }
             }
         }
