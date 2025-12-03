@@ -3,7 +3,7 @@ import UIKit
 
 private enum FeedLayout {
     static let sectionSpacing: CGFloat = 8
-    static let topContentPadding: CGFloat = 14
+    static let topContentPadding: CGFloat = 18
     static let titleTopPadding: CGFloat = 4
     static let headingVerticalPadding: CGFloat = 4
     static let titleHorizontalPadding: CGFloat = 4
@@ -26,6 +26,7 @@ private enum FeedLayout {
 
 struct FeedView: View {
     @State private var selectedSegment: FeedSegment = .all
+    @State private var reviewsSectionWidth: CGFloat = 0
     private let newFromFriendsItems: [FriendItem] = [
         .init(name: "Egor", rating: 4, imageName: "challengers"),
         .init(name: "Yana", rating: 5, imageName: "saturday_night"),
@@ -122,18 +123,6 @@ struct FeedView: View {
               """)
     ]
     private let listItems: [ListItem] = [
-        .init(title: "A24 Midnight Shift", posterImageNames: [
-            "a24_civil",
-            "a24_girl",
-            "a24_safdie",
-            "a24_stripper"
-        ]),
-        .init(title: "Drive & Revolutions", posterImageNames: [
-            "car_bullit",
-            "car_drive",
-            "car_french",
-            "car_night"
-        ]),
         .init(title: "Criterion Frame Works", posterImageNames: [
             "criterion_frames",
             "criterion_haine",
@@ -163,9 +152,15 @@ struct FeedView: View {
             "lost20s_king",
             "lost20s_summer",
             "lost20s_worst"
+        ]),
+        .init(title: "Drive & Revolutions", posterImageNames: [
+            "car_bullit",
+            "car_drive",
+            "car_french",
+            "car_night"
         ])
     ]
- 
+
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(alignment: .center, spacing: 24) {
@@ -344,22 +339,28 @@ struct FeedView: View {
             .padding(.bottom, FeedLayout.headingVerticalPadding)
             .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
-            GeometryReader { geometry in
-                let cardWidth = max(0, geometry.size.width - (FeedLayout.sectionHorizontalInset * 2))
-
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 10) {
-                        ForEach(reviewStories) { story in
-                            reviewStoryCard(story, height: FeedLayout.cardHeight)
-                                .frame(width: cardWidth)
-                        }
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(reviewStories) { story in
+                        reviewStoryCard(story, height: FeedLayout.cardHeight)
+                            .frame(width: computedReviewsCardWidth)
                     }
-                    .scrollTargetLayout()
                 }
-                .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
-                .scrollTargetBehavior(.viewAligned)
+                .scrollTargetLayout()
             }
-            .frame(height: FeedLayout.cardHeight + 160)
+            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
+            .scrollTargetBehavior(.viewAligned)
+            .background(
+                GeometryReader { proxy in
+                    Color.clear
+                        .onAppear {
+                            reviewsSectionWidth = proxy.size.width
+                        }
+                        .onChange(of: proxy.size.width) { _, newValue in
+                            reviewsSectionWidth = newValue
+                        }
+                }
+            )
         }
     }
 }
@@ -426,6 +427,13 @@ private struct TopCorners: Shape {
                                   byRoundingCorners: [.topLeft, .topRight],
                                   cornerRadii: CGSize(width: radius, height: radius))
         return Path(bezier.cgPath)
+    }
+}
+
+private extension FeedView {
+    var computedReviewsCardWidth: CGFloat {
+        let baseWidth = reviewsSectionWidth > 0 ? reviewsSectionWidth : FeedLayout.reviewsCardWidth
+        return max(0, baseWidth - (FeedLayout.sectionHorizontalInset * 2))
     }
 }
 
