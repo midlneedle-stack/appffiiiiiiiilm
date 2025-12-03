@@ -20,6 +20,8 @@ private enum FeedLayout {
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
     static let reviewAvatarSize: CGFloat = 18
     static let reviewsCardWidth: CGFloat = 357
+    static let listMiniPosterWidth: CGFloat = 40
+    static let listMiniPosterHeight: CGFloat = 60
 }
 
 struct FeedView: View {
@@ -119,6 +121,50 @@ struct FeedView: View {
               I just adore this imperfect mumblecore shot on 16mm by the one and only Sean Price Williams. Christmas, Again is a type of movie that makes you get under a blanket and drink hot chocolate while listening to Christmas songs by Sufjan Stevens and Phoebe Bridgers whose songs are filled with melancholy and loneliness of this time of year, so it’s pretty much perfect for me.
               """)
     ]
+    private let listItems: [ListItem] = [
+        .init(title: "A24 Midnight Shift", posterImageNames: [
+            "a24_civil",
+            "a24_girl",
+            "a24_safdie",
+            "a24_stripper"
+        ]),
+        .init(title: "Drive & Revolutions", posterImageNames: [
+            "car_bullit",
+            "car_drive",
+            "car_french",
+            "car_night"
+        ]),
+        .init(title: "Criterion Frame Works", posterImageNames: [
+            "criterion_frames",
+            "criterion_haine",
+            "criterion_lion",
+            "criterion_yi"
+        ]),
+        .init(title: "Horror Poetry", posterImageNames: [
+            "horrors_cure",
+            "horrors_lamb",
+            "horrors_rosemary",
+            "horrors_thin"
+        ]),
+        .init(title: "Indie Signal Flares", posterImageNames: [
+            "indie_aftersun",
+            "indie_hal_harpert",
+            "indie_rap_world",
+            "indie_sweet"
+        ]),
+        .init(title: "Japanese Soundtracks", posterImageNames: [
+            "japan_dmc",
+            "japan_klko",
+            "japan_kukijiro",
+            "japan_oasis"
+        ]),
+        .init(title: "Lost in Your 20s", posterImageNames: [
+            "lost20s_courier",
+            "lost20s_king",
+            "lost20s_summer",
+            "lost20s_worst"
+        ])
+    ]
  
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -131,6 +177,7 @@ struct FeedView: View {
                 recentStories
                 popularThisWeek
                 reviewsFromFriends
+                listsSection
                 // TODO: Subsequent sections (lists/cards) with 36pt spacing
             }
             .padding(.top, FeedLayout.topContentPadding)
@@ -220,6 +267,33 @@ struct FeedView: View {
                 LazyHStack(alignment: .top, spacing: 10) {
                     ForEach(popularItems) { item in
                         PosterCard(item: item)
+                    }
+                }
+            }
+            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
+        }
+    }
+
+    private var listsSection: some View {
+        VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
+            HStack(spacing: FeedLayout.headingIconSpacing) {
+                Text("Lists")
+                    .typography(Typography.sectionTitle)
+                    .foregroundStyle(Color.black)
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(Color.black)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, FeedLayout.titleTopPadding)
+            .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+            .padding(.bottom, FeedLayout.headingVerticalPadding)
+            .padding(.horizontal, FeedLayout.sectionHorizontalInset)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(alignment: .top, spacing: 10) {
+                    ForEach(listItems) { item in
+                        ListCard(item: item)
                     }
                 }
             }
@@ -400,6 +474,73 @@ private struct PosterCard: View {
                     .strokeBorder(Palette.divider, lineWidth: 1)
             )
             .clipped()
+    }
+}
+
+private struct ListItem: Identifiable {
+    let id = UUID()
+    let title: String
+    let posterImageNames: [String]
+}
+
+private struct ListCard: View {
+    let item: ListItem
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            ZStack {
+                RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
+                    .fill(Color.surface)
+                grid
+            }
+            .frame(width: FeedLayout.posterWidth, height: FeedLayout.posterImageHeight)
+            .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
+                    .strokeBorder(Palette.divider, lineWidth: 1)
+            )
+
+            Text(item.title)
+                .typography(Typography.bodyPrimary)
+                .foregroundStyle(Palette.textPrimary)
+                .frame(width: FeedLayout.posterWidth, alignment: .leading)
+                .lineLimit(2)
+        }
+    }
+
+    private var grid: some View {
+        VStack(spacing: 0) {
+            row(indices: 0..<2)
+            row(indices: 2..<4)
+        }
+    }
+
+    @ViewBuilder
+    private func row(indices: Range<Int>) -> some View {
+        HStack(spacing: 0) {
+            ForEach(indices, id: \.self) { index in
+                miniPoster(at: index)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func miniPoster(at index: Int) -> some View {
+        if let name = posterName(at: index) {
+            Image(name)
+                .resizable()
+                .scaledToFit()
+                .frame(width: FeedLayout.listMiniPosterWidth, height: FeedLayout.listMiniPosterHeight, alignment: .center)
+                .clipped()
+        } else {
+            Color.surface
+                .frame(width: FeedLayout.listMiniPosterWidth, height: FeedLayout.listMiniPosterHeight)
+        }
+    }
+
+    private func posterName(at index: Int) -> String? {
+        guard item.posterImageNames.indices.contains(index) else { return nil }
+        return item.posterImageNames[index]
     }
 }
 

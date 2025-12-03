@@ -39,7 +39,7 @@ enum Typography {
 
     static let bodyPrimary = Style(font: .system(size: 14, weight: .medium),
                                    tracking: -0.2,
-                                   lineSpacing: 0) // ~18pt line height target
+                                   lineSpacing: 0)
 
     static let bodySecondary = Style(font: .system(size: 14, weight: .medium),
                                      tracking: -0.2,
