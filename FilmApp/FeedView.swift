@@ -271,7 +271,7 @@ struct FeedView: View {
             .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
             GeometryReader { geometry in
-                let cardWidth = max(0, geometry.size.width - (FeedLayout.sectionHorizontalInset * 2))
+                let cardWidth = max(0, geometry.size.width)
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 10) {
