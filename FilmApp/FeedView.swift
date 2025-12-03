@@ -19,7 +19,7 @@ private enum FeedLayout {
     static let posterImageHeight: CGFloat = 120
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
     static let reviewAvatarSize: CGFloat = 18
-    static let reviewsCardWidth: CGFloat = 357
+    static let reviewsCardWidth: CGFloat = 365
 }
 
 struct FeedView: View {
@@ -270,17 +270,22 @@ struct FeedView: View {
             .padding(.bottom, FeedLayout.headingVerticalPadding)
             .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(alignment: .top, spacing: 12) {
-                    ForEach(reviewStories) { story in
-                        reviewStoryCard(story, height: FeedLayout.cardHeight)
-                            .frame(width: FeedLayout.reviewsCardWidth)
+            GeometryReader { geometry in
+                let cardWidth = max(0, geometry.size.width - (FeedLayout.sectionHorizontalInset * 2) - 10)
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 12) {
+                        ForEach(reviewStories) { story in
+                            reviewStoryCard(story, height: FeedLayout.cardHeight)
+                                .frame(width: cardWidth)
+                        }
                     }
+                    .scrollTargetLayout()
                 }
-                .scrollTargetLayout()
+                .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
+                .scrollTargetBehavior(.viewAligned)
             }
-            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
-            .scrollTargetBehavior(.viewAligned)
+            .frame(height: FeedLayout.cardHeight + 160)
         }
     }
 }
@@ -466,20 +471,21 @@ private extension FeedView {
                         }
                     }
 
-                    HStack(spacing: 0) {
-                        ForEach(0..<5) { index in
-                            Image(systemName: index < story.rating ? "star.fill" : "star")
-                                .font(Typography.starRating.font)
-                                .foregroundStyle(Palette.textPrimary)
-                        }
+                HStack(spacing: 0) {
+                    ForEach(0..<5) { index in
+                        Image(systemName: index < story.rating ? "star.fill" : "star")
+                            .font(Typography.starRating.font)
+                            .foregroundStyle(Palette.textPrimary)
                     }
+                }
 
                 Text(story.body)
                     .typography(Typography.bodyPrimary)
                     .foregroundStyle(Palette.textSecondary)
                     .lineLimit(3)
-                }
+
             }
+        }
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
