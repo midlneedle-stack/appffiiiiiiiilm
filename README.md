@@ -413,3 +413,8 @@ struct ContentView: View {
 
 Reference: Apple SwiftUI Navigation Documentation
 [https://developer.apple.com/documentation/swiftui/navigation](https://developer.apple.com/documentation/swiftui/navigation)
+
+## Padding sanity check
+
+- Keep horizontal padding for each major section aligned with `FeedLayout.sectionHorizontalInset` and avoid relying on `Button` (or other controls) to supply it, so the visual block remains centered even if child layouts round differently.
+- Titles that get a `FeedLayout.titleHorizontalPadding` inset should be followed by equally padded cards/content so the leading alignment does not appear offset; wrap every `recentStoryPreviewCard` or similar content in a container that enforces the same 18pt inset, and prefer explicit `Color.clear` frames or overlay patterns when using `.scaledToFill()` so the layout size matches the visible bounds.
