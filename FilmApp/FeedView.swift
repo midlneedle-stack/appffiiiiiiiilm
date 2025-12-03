@@ -19,7 +19,7 @@ private enum FeedLayout {
     static let posterImageHeight: CGFloat = 120
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
     static let reviewAvatarSize: CGFloat = 18
-    static let reviewsCardWidth: CGFloat = 365
+    static let reviewsCardWidth: CGFloat = 357
 }
 
 struct FeedView: View {
@@ -271,10 +271,10 @@ struct FeedView: View {
             .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
             GeometryReader { geometry in
-                let cardWidth = max(0, geometry.size.width - (FeedLayout.sectionHorizontalInset * 2) - 10)
+                let cardWidth = max(0, geometry.size.width - (FeedLayout.sectionHorizontalInset * 2))
 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 12) {
+                    HStack(spacing: 10) {
                         ForEach(reviewStories) { story in
                             reviewStoryCard(story, height: FeedLayout.cardHeight)
                                 .frame(width: cardWidth)
