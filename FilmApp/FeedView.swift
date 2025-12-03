@@ -35,7 +35,22 @@ struct FeedView: View {
         .init(name: "Sonya", rating: 4, imageName: "marriage_story"),
         .init(name: "Lana", rating: 5, imageName: "blow_up"),
         .init(name: "Noah", rating: 5, imageName: "perfect_blue"),
-        .init(name: "Ivan", rating: 4, imageName: "in_the_mood_for_love")
+        .init(name: "Ivan", rating: 4, imageName: "in_the_mood_for_love"),
+        .init(name: "Mara", rating: 5, imageName: "arrival"),
+        .init(name: "Jonah", rating: 4, imageName: "adaptation"),
+        .init(name: "Sasha", rating: 5, imageName: "palo_alto"),
+        .init(name: "Ruth", rating: 5, imageName: "hedgehog_in_the_fog"),
+        .init(name: "Vera", rating: 4, imageName: "arze"),
+        .init(name: "Sam", rating: 5, imageName: "dead_mans_wire"),
+        .init(name: "Lena", rating: 4, imageName: "a_house_of_dynamite"),
+        .init(name: "Marco", rating: 5, imageName: "a_travelers_needs"),
+        .init(name: "Tina", rating: 4, imageName: "bunnylovr"),
+        .init(name: "Eli", rating: 5, imageName: "eddington"),
+        .init(name: "Milo", rating: 4, imageName: "it_was_just_an_accident"),
+        .init(name: "Pia", rating: 5, imageName: "look_back"),
+        .init(name: "Dima", rating: 4, imageName: "peter"),
+        .init(name: "Zora", rating: 5, imageName: "ping_pong_the_animation"),
+        .init(name: "Leo", rating: 4, imageName: "the_baltimorons")
     ]
     private let recentStory = RecentStory(title: "With the Stars:",
                                           subtitle: "A Tribute to David Lynch",
@@ -47,11 +62,19 @@ struct FeedView: View {
                                           body: "An intimate portrait of two artists trying to share a moment before the credits roll.")
     private let popularItems: [PosterItem] = [
         .init(imageName: "die_my_love"),
+        .init(imageName: "marty_supreme"),
+        .init(imageName: "sound_of_falling"),
+        .init(imageName: "jay_kelly"),
+        .init(imageName: "hamnet"),
+        .init(imageName: "the_mastermind"),
+        .init(imageName: "the_smashing_machine"),
+        .init(imageName: "sirat"),
+        .init(imageName: "happyend"),
         .init(imageName: "if_i_had_legs_id_kick_you"),
-        .init(imageName: "nickel_boys"),
+        .init(imageName: "no_other_choice"),
+        .init(imageName: "one_battle_after_another"),
         .init(imageName: "sorry_baby"),
         .init(imageName: "the_brutalist"),
-        .init(imageName: "urchin")
     ]
     private let switcherGlass = Color(hex: "F5F5F5").opacity(0.1)
     private let reviewStories: [RecentStory] = [
@@ -99,7 +122,7 @@ struct FeedView: View {
  
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .center, spacing: 24) {
                 header
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 segmentSwitcher
@@ -219,15 +242,16 @@ struct FeedView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, FeedLayout.titleTopPadding)
+                .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 .padding(.horizontal, FeedLayout.titleHorizontalPadding)
                 .padding(.bottom, FeedLayout.headingVerticalPadding)
 
                 recentStoryPreviewCard(recentStory)
+                    .padding(.horizontal, FeedLayout.sectionHorizontalInset)
             }
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, FeedLayout.sectionHorizontalInset)
     }
 
     private var reviewsFromFriends: some View {
@@ -457,7 +481,7 @@ private extension FeedView {
                 }
             }
         }
-        .frame(maxWidth: .infinity)
+        .frame(maxWidth: .infinity, alignment: .center)
         .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
         .contentShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
     }
@@ -467,19 +491,25 @@ private extension FeedView {
                                         headline: String? = nil,
                                         lineLimit: Int = 2) -> some View {
         ZStack(alignment: .bottomLeading) {
-            Image(story.imageName)
-                .resizable()
-                .scaledToFill()
+            Color.clear
                 .frame(maxWidth: .infinity)
                 .frame(height: height)
-                .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
+                .overlay(alignment: .center) {
+                    Image(story.imageName)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(maxWidth: .infinity)
+                        .frame(height: height)
+                }
                 .clipped()
+                .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
 
             Text(headline ?? story.headline)
                 .typography(Typography.recentStoryTitle)
                 .foregroundStyle(Color.white)
                 .lineLimit(lineLimit)
                 .padding(.leading, FeedLayout.cardTextLeading)
+                .padding(.trailing, FeedLayout.cardTextLeading)
                 .padding(.bottom, FeedLayout.cardTextBottom)
         }
         .frame(maxWidth: .infinity)
