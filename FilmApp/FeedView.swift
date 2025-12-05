@@ -2,12 +2,10 @@ import SwiftUI
 import UIKit
 
 private enum FeedLayout {
-    static let sectionSpacing: CGFloat = 8
+    static let sectionSpacing: CGFloat = 12
+    static let sectionStackSpacing: CGFloat = 28
     static let topContentPadding: CGFloat = 18
-    static let titleTopPadding: CGFloat = 4
-    static let headingVerticalPadding: CGFloat = 4
     static let titleHorizontalPadding: CGFloat = 4
-    static let contentVerticalInset: CGFloat = 4
     static let sectionHorizontalInset: CGFloat = 18
     static let headingIconSpacing: CGFloat = 2
     static let cardTextLeading: CGFloat = 16
@@ -19,14 +17,13 @@ private enum FeedLayout {
     static let posterImageHeight: CGFloat = 120
     static let posterTotalHeight: CGFloat = posterImageHeight + 24
     static let reviewAvatarSize: CGFloat = 18
-    static let reviewsCardWidth: CGFloat = 357
     static let listMiniPosterWidth: CGFloat = 40
     static let listMiniPosterHeight: CGFloat = 60
 }
 
 struct FeedView: View {
     @State private var selectedSegment: FeedSegment = .all
-    @State private var reviewsSectionWidth: CGFloat = 0
+    @State private var reviewsSectionWidth: CGFloat? = nil
     private let newFromFriendsItems: [FriendItem] = [
         .init(name: "Egor", rating: 4, imageName: "challengers"),
         .init(name: "Yana", rating: 5, imageName: "saturday_night"),
@@ -163,7 +160,7 @@ struct FeedView: View {
 
     var body: some View {
         ScrollView(showsIndicators: false) {
-            VStack(alignment: .center, spacing: 24) {
+            VStack(alignment: .center, spacing: FeedLayout.sectionStackSpacing) {
                 header
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 segmentSwitcher
@@ -173,7 +170,7 @@ struct FeedView: View {
                 popularThisWeek
                 reviewsFromFriends
                 listsSection
-                // TODO: Subsequent sections (lists/cards) with 36pt spacing
+                // TODO: Subsequent sections (lists/cards) should share sectionStackSpacing
             }
             .padding(.top, FeedLayout.topContentPadding)
             .padding(.bottom, 120)
@@ -233,10 +230,8 @@ struct FeedView: View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
             Text("New from friends")
                 .typography(Typography.sectionTitle)
-                .padding(.top, FeedLayout.titleTopPadding)
                 .padding(.horizontal, FeedLayout.titleHorizontalPadding)
                 .padding(.horizontal, FeedLayout.sectionHorizontalInset)
-                .padding(.bottom, FeedLayout.headingVerticalPadding)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
@@ -253,10 +248,8 @@ struct FeedView: View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
             Text("Popular this week")
                 .typography(Typography.sectionTitle)
-                .padding(.top, FeedLayout.titleTopPadding)
                 .padding(.horizontal, FeedLayout.titleHorizontalPadding)
                 .padding(.horizontal, FeedLayout.sectionHorizontalInset)
-                .padding(.bottom, FeedLayout.headingVerticalPadding)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
@@ -280,9 +273,7 @@ struct FeedView: View {
                     .foregroundStyle(Color.black)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, FeedLayout.titleTopPadding)
             .padding(.horizontal, FeedLayout.titleHorizontalPadding)
-            .padding(.bottom, FeedLayout.headingVerticalPadding)
             .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -310,10 +301,8 @@ struct FeedView: View {
                         .foregroundStyle(Color.black)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.top, FeedLayout.titleTopPadding)
                 .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 .padding(.horizontal, FeedLayout.titleHorizontalPadding)
-                .padding(.bottom, FeedLayout.headingVerticalPadding)
 
                 recentStoryPreviewCard(recentStory)
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
@@ -334,9 +323,7 @@ struct FeedView: View {
                     .foregroundStyle(Color.black)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, FeedLayout.titleTopPadding)
             .padding(.horizontal, FeedLayout.titleHorizontalPadding)
-            .padding(.bottom, FeedLayout.headingVerticalPadding)
             .padding(.horizontal, FeedLayout.sectionHorizontalInset)
 
             ScrollView(.horizontal, showsIndicators: false) {
@@ -432,7 +419,7 @@ private struct TopCorners: Shape {
 
 private extension FeedView {
     var computedReviewsCardWidth: CGFloat {
-        let baseWidth = reviewsSectionWidth > 0 ? reviewsSectionWidth : FeedLayout.reviewsCardWidth
+        guard let baseWidth = reviewsSectionWidth else { return 0 }
         return max(0, baseWidth - (FeedLayout.sectionHorizontalInset * 2))
     }
 }
