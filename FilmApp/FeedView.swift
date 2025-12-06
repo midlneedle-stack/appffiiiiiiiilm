@@ -209,8 +209,8 @@ struct FeedView: View {
                 selectedSegment = segment
             }
         } label: {
-            Text(segment.title)
-                .typography(Typography.pillSegment)
+                Text(segment.title)
+                    .typography(Typography.bodySecondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
                 .foregroundStyle(isActive ? Color.black : Palette.textThird)
@@ -269,7 +269,7 @@ struct FeedView: View {
                     .typography(Typography.sectionTitle)
                     .foregroundStyle(Color.black)
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 17, weight: .medium))
+                    .font(Typography.sectionAccessoryIcon.font)
                     .foregroundStyle(Color.black)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -293,12 +293,12 @@ struct FeedView: View {
         } label: {
             VStack(spacing: FeedLayout.sectionSpacing) {
                 HStack(spacing: FeedLayout.headingIconSpacing) {
-                    Text("Recent stories")
-                        .typography(Typography.sectionTitle)
-                        .foregroundStyle(Color.black)
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(Color.black)
+                Text("Recent stories")
+                    .typography(Typography.sectionTitle)
+                    .foregroundStyle(Color.black)
+                Image(systemName: "chevron.right")
+                    .font(Typography.sectionAccessoryIcon.font)
+                    .foregroundStyle(Color.black)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, FeedLayout.sectionHorizontalInset)
@@ -319,7 +319,7 @@ struct FeedView: View {
                     .typography(Typography.sectionTitle)
                     .foregroundStyle(Color.black)
                 Image(systemName: "chevron.right")
-                    .font(.system(size: 17, weight: .medium))
+                    .font(Typography.sectionAccessoryIcon.font)
                     .foregroundStyle(Color.black)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -386,17 +386,17 @@ private struct FriendCard: View {
     }
 
     private var bottomBar: some View {
-        HStack(spacing: 4) {
-            Text(item.name)
-                .typography(Typography.cardTitle)
-                .lineLimit(1)
-                .truncationMode(.tail)
-                .foregroundStyle(Palette.textSecondary)
+            HStack(spacing: 4) {
+                Text(item.name)
+                    .typography(Typography.cardTitle)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+                    .foregroundStyle(Palette.textSecondary)
             Capsule()
                 .fill(Palette.divider)
                 .frame(width: 1, height: 12)
             Image(systemName: "star.fill")
-                .font(.system(size: 9, weight: .medium))
+                .font(Typography.ratingStarIcon.font)
                 .foregroundStyle(Palette.textSecondary)
             Text("\(item.rating)")
                 .typography(Typography.cardTitle)
@@ -444,7 +444,7 @@ private struct CircleGlassButton: View {
                 .frame(width: 44, height: 44)
                 .liquidGlass(shape: Circle(), strokeColor: Color.black.opacity(0.1))
             Image(systemName: systemName)
-                .font(.system(size: 17, weight: .regular))
+                .font(Typography.tabIcon.font)
                 .foregroundStyle(Color.black)
         }
     }
@@ -598,9 +598,9 @@ private extension FeedView {
                         Spacer()
 
                         HStack(spacing: 2) {
-                            Image(systemName: "heart.fill")
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundStyle(Palette.textSecondary)
+                        Image(systemName: "heart.fill")
+                            .font(Typography.badgeIcon.font)
+                            .foregroundStyle(Palette.textSecondary)
                             Text("\(story.likes)")
                                 .typography(Typography.bodyPrimary)
                                 .foregroundStyle(Palette.textSecondary)
@@ -610,7 +610,7 @@ private extension FeedView {
                 HStack(spacing: 0) {
                     ForEach(0..<5) { index in
                         Image(systemName: index < story.rating ? "star.fill" : "star")
-                            .font(Typography.starRating.font)
+                    .font(Typography.cardTitle.font)
                             .foregroundStyle(Palette.textPrimary)
                     }
                 }

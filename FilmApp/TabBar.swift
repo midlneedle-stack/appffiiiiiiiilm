@@ -60,6 +60,7 @@ struct TabBar: View {
     private func tabButton(for tab: Tab) -> some View {
         let isActive = selectedTab == tab
         let iconTextSpacing = 7.0 / displayScale // 7px target, scaled to points
+        let iconFont = tab == .profile ? Typography.tabIconProfile.font : Typography.tabIcon.font
 
         return Button {
             withAnimation(.snappy) {
@@ -68,11 +69,10 @@ struct TabBar: View {
         } label: {
             VStack(spacing: iconTextSpacing) {
                 Image(systemName: tab.icon(isActive: isActive))
-                    .font(.system(size: tab == .profile ? 20 : 17,
-                                  weight: .regular))
+                    .font(iconFont)
                     .frame(width: 20, height: 20) // Uniform frame keeps text aligned across tabs
                 Text(tab.title)
-                    .font(.system(size: 10, weight: .medium)) // Matches provided spec (SF Pro, Medium, 10pt)
+                    .typography(Typography.tabLabel)
             }
             .frame(width: isActive ? 82 : 62, height: 52)
             .foregroundStyle(isActive ? Color.white : Color.black)
@@ -97,9 +97,9 @@ struct TabBar: View {
         Button {
             // Hook up search action here.
         } label: {
-            Image(systemName: "magnifyingglass")
-                .font(.system(size: 21, weight: .regular)) // SF Pro Regular, 21pt
-                .frame(width: 21, height: 21)
+                Image(systemName: "magnifyingglass")
+                    .font(Typography.searchIcon.font)
+                    .frame(width: 21, height: 21)
                 .foregroundStyle(Color.black)
                 .frame(width: 60, height: 60)
                 .background(barGlass)
