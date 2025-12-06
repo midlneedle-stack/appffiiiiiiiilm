@@ -228,10 +228,7 @@ struct FeedView: View {
 
     private var newFromFriends: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
-            Text("New from friends")
-                .typography(Typography.sectionTitle)
-                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
-                .padding(.horizontal, FeedLayout.sectionHorizontalInset)
+            sectionHeading("New from friends")
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
@@ -246,10 +243,7 @@ struct FeedView: View {
 
     private var popularThisWeek: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
-            Text("Popular this week")
-                .typography(Typography.sectionTitle)
-                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
-                .padding(.horizontal, FeedLayout.sectionHorizontalInset)
+            sectionHeading("Popular this week")
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
@@ -264,17 +258,7 @@ struct FeedView: View {
 
     private var listsSection: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
-            HStack(spacing: FeedLayout.headingIconSpacing) {
-                Text("Lists")
-                    .typography(Typography.sectionTitle)
-                    .foregroundStyle(Color.black)
-                Image(systemName: "chevron.right")
-                    .font(Typography.sectionAccessoryIcon.font)
-                    .foregroundStyle(Color.black)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, FeedLayout.titleHorizontalPadding)
-            .padding(.horizontal, FeedLayout.sectionHorizontalInset)
+            sectionHeading("Lists", showAccessory: true)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
@@ -292,17 +276,7 @@ struct FeedView: View {
             // TODO: Open story detail
         } label: {
             VStack(spacing: FeedLayout.sectionSpacing) {
-                HStack(spacing: FeedLayout.headingIconSpacing) {
-                Text("Recent stories")
-                    .typography(Typography.sectionTitle)
-                    .foregroundStyle(Color.black)
-                Image(systemName: "chevron.right")
-                    .font(Typography.sectionAccessoryIcon.font)
-                    .foregroundStyle(Color.black)
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.horizontal, FeedLayout.sectionHorizontalInset)
-                .padding(.horizontal, FeedLayout.titleHorizontalPadding)
+                sectionHeading("Recent stories", showAccessory: true)
 
                 recentStoryPreviewCard(recentStory)
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
@@ -314,17 +288,7 @@ struct FeedView: View {
 
     private var reviewsFromFriends: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
-            HStack(spacing: FeedLayout.headingIconSpacing) {
-                Text("Reviews from friends")
-                    .typography(Typography.sectionTitle)
-                    .foregroundStyle(Color.black)
-                Image(systemName: "chevron.right")
-                    .font(Typography.sectionAccessoryIcon.font)
-                    .foregroundStyle(Color.black)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, FeedLayout.titleHorizontalPadding)
-            .padding(.horizontal, FeedLayout.sectionHorizontalInset)
+            sectionHeading("Reviews from friends", showAccessory: true)
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
@@ -349,6 +313,22 @@ struct FeedView: View {
                 }
             )
         }
+    }
+
+    @ViewBuilder
+    private func sectionHeading(_ title: String, showAccessory: Bool = false) -> some View {
+        HStack(spacing: FeedLayout.headingIconSpacing) {
+            Text(title)
+                .typography(Typography.sectionTitle)
+                .foregroundStyle(Color.black)
+                .padding(.horizontal, FeedLayout.sectionHorizontalInset + FeedLayout.titleHorizontalPadding)
+            if showAccessory {
+                Image(systemName: "chevron.right")
+                    .font(Typography.sectionAccessoryIcon.font)
+                    .foregroundStyle(Color.black)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
 
