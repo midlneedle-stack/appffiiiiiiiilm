@@ -29,12 +29,12 @@ enum Typography {
                                 lineSpacing: nil)
     // Reserved for future metadata badges.
 
-    static let storyHeadline = Style(font: .system(size: 14, weight: .medium),
+    static let storyHeadline = Style(font: .system(size: 16, weight: .medium),
                                      tracking: -0.2,
                                      lineSpacing: nil)
     // Review author names inside each review card.
 
-    static let recentStoryTitle = Style(font: .system(size: 14, weight: .semibold),
+    static let recentStoryTitle = Style(font: .system(size: 16, weight: .semibold),
                                         tracking: -0.2,
                                         lineSpacing: 0)
     // Headlines shown on story preview cards.

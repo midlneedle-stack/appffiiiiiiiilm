@@ -2,23 +2,23 @@ import SwiftUI
 import UIKit
 
 private enum FeedLayout {
-    static let sectionSpacing: CGFloat = 12
-    static let sectionStackSpacing: CGFloat = 28
-    static let topContentPadding: CGFloat = 18
-    static let titleHorizontalPadding: CGFloat = 4
-    static let sectionHorizontalInset: CGFloat = 18
-    static let headingIconSpacing: CGFloat = 2
-    static let cardTextLeading: CGFloat = 16
-    static let cardTextBottom: CGFloat = 14
-    static let cardCornerRadius: CGFloat = 12
-    static let cardStrokeWidth: CGFloat = 1
-    static let cardHeight: CGFloat = 120
-    static let posterWidth: CGFloat = 80
-    static let posterImageHeight: CGFloat = 120
-    static let posterTotalHeight: CGFloat = posterImageHeight + 24
-    static let reviewAvatarSize: CGFloat = 18
-    static let listMiniPosterWidth: CGFloat = 40
-    static let listMiniPosterHeight: CGFloat = 60
+    static let sectionSpacing: CGFloat = 10 // Vertical gap between each major block.
+    static let sectionStackSpacing: CGFloat = 28 // Stack spacing for header+content groups.
+    static let topContentPadding: CGFloat = 18 // Safe-area top inset for the scroll content.
+    static let titleHorizontalPadding: CGFloat = 4 // Extra +4pt applied to section titles (18 + 4 = 22pt visual).
+    static let sectionHorizontalInset: CGFloat = 18 // Core 18pt horizontal gutter used throughout scroll content.
+    static let headingIconSpacing: CGFloat = 2 // Gap between headings and the trailing chevron icon.
+    static let cardTextLeading: CGFloat = 16 // Leading inset for story title text overlays.
+    static let cardTextBottom: CGFloat = 14 // Bottom inset for story title text overlays above cards.
+    static let cardCornerRadius: CGFloat = 12 // Corner radius applied to cards and rounded backgrounds.
+    static let cardStrokeWidth: CGFloat = 1 // Border stroke width for card outlines.
+    static let cardHeight: CGFloat = 120 // Standard height for review and story preview cards.
+    static let posterWidth: CGFloat = 80 // Width of poster cards used in horizontal lists.
+    static let posterImageHeight: CGFloat = 120 // Height of poster imagery inside friend/popular/list cards.
+    static let posterTotalHeight: CGFloat = posterImageHeight + 24 // Total friend card height (image + label area).
+    static let reviewAvatarSize: CGFloat = 18 // Diameter for review avatar thumbnails.
+    static let listMiniPosterWidth: CGFloat = 40 // Width of mini posters inside list cards.
+    static let listMiniPosterHeight: CGFloat = 60 // Height of mini posters inside list cards.
 }
 
 struct FeedView: View {
@@ -317,15 +317,18 @@ struct FeedView: View {
 
     @ViewBuilder
     private func sectionHeading(_ title: String, showAccessory: Bool = false) -> some View {
-        HStack(spacing: FeedLayout.headingIconSpacing) {
+        HStack(alignment: .lastTextBaseline, spacing: FeedLayout.headingIconSpacing) {
             Text(title)
                 .typography(Typography.sectionTitle)
                 .foregroundStyle(Color.black)
-                .padding(.horizontal, FeedLayout.sectionHorizontalInset + FeedLayout.titleHorizontalPadding)
+                .padding(.leading, FeedLayout.sectionHorizontalInset + FeedLayout.titleHorizontalPadding)
             if showAccessory {
                 Image(systemName: "chevron.right")
                     .font(Typography.sectionAccessoryIcon.font)
                     .foregroundStyle(Color.black)
+                    .alignmentGuide(.lastTextBaseline) { dimensions in
+                        dimensions[.bottom]
+                    }
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
