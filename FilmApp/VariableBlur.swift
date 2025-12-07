@@ -13,24 +13,38 @@ public enum VariableBlurDirection {
 
 public struct VariableBlurView: UIViewRepresentable {
     
-    public var maxBlurRadius: CGFloat = 20
+    public var maxBlurRadius: CGFloat = 5
     
     public var direction: VariableBlurDirection = .blurredTopClearBottom
+    public var isEnabled: Bool = false
     
     /// By default, variable blur starts from 0 blur radius and linearly increases to `maxBlurRadius`. Setting `startOffset` to a small negative coefficient (e.g. -0.1) will start blur from larger radius value which might look better in some cases.
     public var startOffset: CGFloat = 0
     
-    public init(maxBlurRadius: CGFloat = 10, direction: VariableBlurDirection = .blurredTopClearBottom, startOffset: CGFloat = 0) {
+    public init(
+        maxBlurRadius: CGFloat = 5,
+        direction: VariableBlurDirection = .blurredTopClearBottom,
+        startOffset: CGFloat = 0,
+        isEnabled: Bool = false
+    ) {
         self.maxBlurRadius = maxBlurRadius
         self.direction = direction
         self.startOffset = startOffset
+        self.isEnabled = isEnabled
     }
     
     public func makeUIView(context: Context) -> VariableBlurUIView {
-        VariableBlurUIView(maxBlurRadius: maxBlurRadius, direction: direction, startOffset: startOffset)
+        VariableBlurUIView(maxBlurRadius: maxBlurRadius,
+                           direction: direction,
+                           startOffset: startOffset,
+                           isEnabled: isEnabled)
     }
 
     public func updateUIView(_ uiView: VariableBlurUIView, context: Context) {
+        uiView.update(maxBlurRadius: maxBlurRadius,
+                      direction: direction,
+                      startOffset: startOffset,
+                      isEnabled: isEnabled)
     }
 }
 
@@ -38,7 +52,10 @@ public struct VariableBlurView: UIViewRepresentable {
 /// credit https://github.com/jtrivedi/VariableBlurView
 open class VariableBlurUIView: UIVisualEffectView {
 
-    public init(maxBlurRadius: CGFloat = 20, direction: VariableBlurDirection = .blurredTopClearBottom, startOffset: CGFloat = 0) {
+    private var variableBlur: NSObject?
+    private weak var backdropLayer: CALayer?
+
+    public init(maxBlurRadius: CGFloat = 10, direction: VariableBlurDirection = .blurredTopClearBottom, startOffset: CGFloat = 0, isEnabled: Bool = true) {
         super.init(effect: UIBlurEffect(style: .regular))
 
         let clsName = String("retliFAC".reversed())
@@ -54,15 +71,13 @@ open class VariableBlurUIView: UIVisualEffectView {
 
         // The blur radius at each pixel depends on the alpha value of the corresponding pixel in the gradient mask.
         // An alpha of 1 results in the max blur radius, while an alpha of 0 is completely unblurred.
-        let gradientImage = makeGradientImage(startOffset: startOffset, direction: direction)
-
-        variableBlur.setValue(maxBlurRadius, forKey: "inputRadius")
-        variableBlur.setValue(gradientImage, forKey: "inputMaskImage")
-        variableBlur.setValue(true, forKey: "inputNormalizeEdges")
+        self.variableBlur = variableBlur
+        apply(maxBlurRadius: maxBlurRadius, direction: direction, startOffset: startOffset, isEnabled: isEnabled)
 
         // We use a `UIVisualEffectView` here purely to get access to its `CABackdropLayer`,
         // which is able to apply various, real-time CAFilters onto the views underneath.
         let backdropLayer = subviews.first?.layer
+        self.backdropLayer = backdropLayer
 
         // Replace the standard filters (i.e. `gaussianBlur`, `colorSaturate`, etc.) with only the variableBlur.
         backdropLayer?.filters = [variableBlur]
@@ -99,5 +114,22 @@ open class VariableBlurUIView: UIVisualEffectView {
             ciGradientFilter.point1.y = height - ciGradientFilter.point1.y
         }
         return CIContext().createCGImage(ciGradientFilter.outputImage!, from: CGRect(x: 0, y: 0, width: width, height: height))!
+    }
+
+    func update(maxBlurRadius: CGFloat, direction: VariableBlurDirection, startOffset: CGFloat, isEnabled: Bool) {
+        apply(maxBlurRadius: maxBlurRadius, direction: direction, startOffset: startOffset, isEnabled: isEnabled)
+    }
+
+    private func apply(maxBlurRadius: CGFloat, direction: VariableBlurDirection, startOffset: CGFloat, isEnabled: Bool) {
+        guard let variableBlur else { return }
+        let gradientImage = makeGradientImage(startOffset: startOffset, direction: direction)
+        variableBlur.setValue(maxBlurRadius, forKey: "inputRadius")
+        variableBlur.setValue(gradientImage, forKey: "inputMaskImage")
+        variableBlur.setValue(true, forKey: "inputNormalizeEdges")
+        if isEnabled {
+            backdropLayer?.filters = [variableBlur]
+        } else {
+            backdropLayer?.filters = []
+        }
     }
 }

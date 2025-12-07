@@ -30,7 +30,7 @@ struct TabBar: View {
     @Namespace private var selectionNamespace
     @Environment(\.displayScale) private var displayScale
 
-    private let barGlass = Color(hex: "D8D8D8").opacity(0.2)
+    private let barGlass = Color(hex: "D8D8D8").opacity(0.4)
 
     var body: some View {
         Color.clear
