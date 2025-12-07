@@ -8,6 +8,8 @@ private enum FeedLayout {
     static let titleHorizontalPadding: CGFloat = 4 // Extra +4pt applied to section titles (18 + 4 = 22pt visual).
     static let sectionHorizontalInset: CGFloat = 18 // Core 18pt horizontal gutter used throughout scroll content.
     static let headingIconSpacing: CGFloat = 2 // Gap between headings and the trailing chevron icon.
+    static let headingSubtitleSpacing: CGFloat = 4 // Gap between title and subtitle when present.
+    static let headingContentSpacing: CGFloat = 14 // Gap between the title block (with subtitle) and its content when subtitle is on.
     static let cardTextLeading: CGFloat = 16 // Leading inset for story title text overlays.
     static let cardTextBottom: CGFloat = 14 // Bottom inset for story title text overlays above cards.
     static let cardCornerRadius: CGFloat = 12 // Corner radius applied to cards and rounded backgrounds.
@@ -157,6 +159,14 @@ struct FeedView: View {
             "car_night"
         ])
     ]
+    private let cannesFilms: [CannesFilm] = [
+        .init(title: "Embers of the Sky"),
+        .init(title: "Quiet Tide"),
+        .init(title: "Silver Horizon"),
+        .init(title: "Midnight Promenade"),
+        .init(title: "Paper Lanterns"),
+        .init(title: "Northbound Lights")
+    ]
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -170,6 +180,7 @@ struct FeedView: View {
                 popularThisWeek
                 reviewsFromFriends
                 listsSection
+                cannesSection
                 // TODO: Subsequent sections (lists/cards) should share sectionStackSpacing
             }
             .padding(.top, FeedLayout.topContentPadding)
@@ -256,6 +267,23 @@ struct FeedView: View {
         }
     }
 
+    private var cannesSection: some View {
+        VStack(alignment: .leading, spacing: FeedLayout.headingContentSpacing) {
+            sectionHeading("Cannes 2026",
+                           showAccessory: false,
+                           subtitle: "Take a closer look at the 79th Festival de Cannes")
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(alignment: .top, spacing: 10) {
+                    ForEach(cannesFilms) { film in
+                        CannesPosterCard(item: film)
+                    }
+                }
+            }
+            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
+        }
+    }
+
     private var listsSection: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
             sectionHeading("Lists", showAccessory: true)
@@ -316,19 +344,30 @@ struct FeedView: View {
     }
 
     @ViewBuilder
-    private func sectionHeading(_ title: String, showAccessory: Bool = false) -> some View {
-        HStack(alignment: .lastTextBaseline, spacing: FeedLayout.headingIconSpacing) {
-            Text(title)
-                .typography(Typography.sectionTitle)
-                .foregroundStyle(Color.black)
-                .padding(.leading, FeedLayout.sectionHorizontalInset + FeedLayout.titleHorizontalPadding)
-            if showAccessory {
-                Image(systemName: "chevron.right")
-                    .font(Typography.sectionAccessoryIcon.font)
+    private func sectionHeading(_ title: String,
+                                showAccessory: Bool = false,
+                                subtitle: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: subtitle == nil ? 0 : FeedLayout.headingSubtitleSpacing) {
+            HStack(alignment: .lastTextBaseline, spacing: FeedLayout.headingIconSpacing) {
+                Text(title)
+                    .typography(Typography.sectionTitle)
                     .foregroundStyle(Color.black)
-                    .alignmentGuide(.lastTextBaseline) { dimensions in
-                        dimensions[.bottom]
-                    }
+                    .padding(.leading, FeedLayout.sectionHorizontalInset + FeedLayout.titleHorizontalPadding)
+                if showAccessory {
+                    Image(systemName: "chevron.right")
+                        .font(Typography.sectionAccessoryIcon.font)
+                        .foregroundStyle(Color.black)
+                        .alignmentGuide(.lastTextBaseline) { dimensions in
+                            dimensions[.bottom]
+                        }
+                }
+            }
+
+            if let subtitle {
+                Text(subtitle)
+                    .typography(Typography.bodyPrimary)
+                    .foregroundStyle(Palette.textThird)
+                    .padding(.leading, FeedLayout.sectionHorizontalInset + FeedLayout.titleHorizontalPadding)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -459,6 +498,11 @@ private struct ListItem: Identifiable {
     let id = UUID()
     let title: String
     let posterImageNames: [String]
+}
+
+private struct CannesFilm: Identifiable {
+    let id = UUID()
+    let title: String
 }
 
 private struct ListCard: View {
@@ -673,5 +717,20 @@ enum FeedSegment: String {
         case .all: "All"
         case .friends: "Friends"
         }
+    }
+}
+
+private struct CannesPosterCard: View {
+    let item: CannesFilm
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
+            .fill(Color.surface)
+            .frame(width: 180, height: 270)
+            .overlay(
+                RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
+                    .strokeBorder(Palette.divider, lineWidth: 1)
+            )
+            .frame(width: 180, height: 270)
     }
 }
