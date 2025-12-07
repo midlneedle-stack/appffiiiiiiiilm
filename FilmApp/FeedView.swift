@@ -160,12 +160,12 @@ struct FeedView: View {
         ])
     ]
     private let cannesFilms: [CannesFilm] = [
-        .init(title: "Embers of the Sky"),
-        .init(title: "Quiet Tide"),
-        .init(title: "Silver Horizon"),
-        .init(title: "Midnight Promenade"),
-        .init(title: "Paper Lanterns"),
-        .init(title: "Northbound Lights")
+        .init(title: "Embers of the Sky", imageName: "Screenshot 2025-12-07 at 14.42.11"),
+        .init(title: "Quiet Tide", imageName: "Screenshot 2025-12-07 at 14.42.34"),
+        .init(title: "Silver Horizon", imageName: "Screenshot 2025-12-07 at 14.42.53"),
+        .init(title: "Midnight Promenade", imageName: nil),
+        .init(title: "Paper Lanterns", imageName: nil),
+        .init(title: "Northbound Lights", imageName: nil)
     ]
 
     var body: some View {
@@ -274,7 +274,7 @@ struct FeedView: View {
                            subtitle: "Take a closer look at the 79th Festival de Cannes")
 
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(alignment: .top, spacing: 10) {
+                LazyHStack(alignment: .top, spacing: 6) {
                     ForEach(cannesFilms) { film in
                         CannesPosterCard(item: film)
                     }
@@ -503,6 +503,7 @@ private struct ListItem: Identifiable {
 private struct CannesFilm: Identifiable {
     let id = UUID()
     let title: String
+    let imageName: String?
 }
 
 private struct ListCard: View {
@@ -724,13 +725,22 @@ private struct CannesPosterCard: View {
     let item: CannesFilm
 
     var body: some View {
-        RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
-            .fill(Color.surface)
-            .frame(width: 180, height: 270)
-            .overlay(
-                RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
-                    .strokeBorder(Palette.divider, lineWidth: 1)
-            )
-            .frame(width: 180, height: 270)
+        ZStack {
+            if let imageName = item.imageName {
+                Image(imageName)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(width: 180, height: 270)
+                    .clipped()
+            } else {
+                Color.surface
+            }
+        }
+        .frame(width: 180, height: 270)
+        .clipShape(RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: FeedLayout.cardCornerRadius, style: .continuous)
+                .strokeBorder(Palette.divider, lineWidth: 1)
+        )
     }
 }
