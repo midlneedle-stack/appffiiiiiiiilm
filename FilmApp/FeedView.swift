@@ -122,25 +122,25 @@ struct FeedView: View {
               """)
     ]
     private let listItems: [ListItem] = [
-        .init(title: "Criterion Frame Works", posterImageNames: [
+        .init(title: "Criterion Collection", posterImageNames: [
             "criterion_frames",
             "criterion_haine",
             "criterion_lion",
             "criterion_yi"
         ]),
-        .init(title: "Horror Poetry", posterImageNames: [
+        .init(title: "Best Horrors of the 20th century", posterImageNames: [
             "horrors_cure",
             "horrors_lamb",
             "horrors_rosemary",
             "horrors_thin"
         ]),
-        .init(title: "Indie Signal Flares", posterImageNames: [
+        .init(title: "modern_indie_films.txt", posterImageNames: [
             "indie_aftersun",
             "indie_hal_harpert",
             "indie_rap_world",
             "indie_sweet"
         ]),
-        .init(title: "Japanese Soundtracks", posterImageNames: [
+        .init(title: "Japanese road movies", posterImageNames: [
             "japan_dmc",
             "japan_klko",
             "japan_kukijiro",
@@ -167,6 +167,15 @@ struct FeedView: View {
         .init(title: "Paper Lanterns", imageName: nil),
         .init(title: "Northbound Lights", imageName: nil)
     ]
+    private let popularWithFriendsItems: [PosterItem] = [
+        .init(imageName: "american_pie"),
+        .init(imageName: "hal_harper"),
+        .init(imageName: "hateful_eight"),
+        .init(imageName: "manhattan"),
+        .init(imageName: "napoleon_dynamite"),
+        .init(imageName: "notting_hill"),
+        .init(imageName: "warfare")
+    ]
 
     var body: some View {
         ScrollView(showsIndicators: false) {
@@ -181,6 +190,7 @@ struct FeedView: View {
                 reviewsFromFriends
                 listsSection
                 cannesSection
+                popularWithFriendsSection
                 // TODO: Subsequent sections (lists/cards) should share sectionStackSpacing
             }
             .padding(.top, FeedLayout.topContentPadding)
@@ -292,6 +302,21 @@ struct FeedView: View {
                 LazyHStack(alignment: .top, spacing: 10) {
                     ForEach(listItems) { item in
                         ListCard(item: item)
+                    }
+                }
+            }
+            .contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)
+        }
+    }
+
+    private var popularWithFriendsSection: some View {
+        VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
+            sectionHeading("Popular with friends")
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(alignment: .top, spacing: 10) {
+                    ForEach(popularWithFriendsItems) { item in
+                        PosterCard(item: item)
                     }
                 }
             }
