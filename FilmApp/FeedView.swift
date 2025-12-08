@@ -226,8 +226,8 @@ struct FeedView: View {
             if let frame = segmentFrames[selectedSegment] {
                 indicatorView
                     .frame(width: frame.width, height: frame.height)
-                    .offset(x: frame.minX)
-                    .animation(.snappy(duration: 0.25), value: frame)
+            .offset(x: frame.minX)
+            .animation(.easeInOut(duration: 0.3), value: frame)
             }
 
             HStack(spacing: 0) {
@@ -255,7 +255,7 @@ struct FeedView: View {
     private func segmentButton(_ segment: FeedSegment) -> some View {
         let isActive = segment == selectedSegment
         return Button {
-            withAnimation(.snappy(duration: 0.25)) {
+            withAnimation(.easeInOut(duration: 0.3)) {
                 selectedSegment = segment
             }
         } label: {
