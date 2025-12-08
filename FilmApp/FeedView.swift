@@ -26,6 +26,8 @@ private enum FeedLayout {
 struct FeedView: View {
     @State private var selectedSegment: FeedSegment = .all
     @State private var reviewsSectionWidth: CGFloat? = nil
+    @State private var segmentFrames: [FeedSegment: CGRect] = [:]
+    @Namespace private var segmentAnim
     private let newFromFriendsItems: [FriendItem] = [
         .init(name: "Egor", rating: 4, imageName: "challengers"),
         .init(name: "Yana", rating: 5, imageName: "saturday_night"),
@@ -78,7 +80,8 @@ struct FeedView: View {
         .init(imageName: "sorry_baby"),
         .init(imageName: "the_brutalist"),
     ]
-    private let switcherGlass = Color(hex: "F5F5F5").opacity(0.1)
+    private let switcherGlass = Color.white
+    private let segmentBorderColor = Color(hex: "E6E6E6")
     private let reviewStories: [RecentStory] = [
         .init(title: "",
               subtitle: "Her (2013)",
@@ -184,13 +187,19 @@ struct FeedView: View {
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 segmentSwitcher
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
-                newFromFriends
-                recentStories
-                popularThisWeek
-                reviewsFromFriends
-                listsSection
-                cannesSection
-                popularWithFriendsSection
+                if selectedSegment == .all {
+                    newFromFriends
+                    recentStories
+                    popularThisWeek
+                    reviewsFromFriends
+                    listsSection
+                    cannesSection
+                    popularWithFriendsSection
+                } else {
+                    newFromFriends
+                    reviewsFromFriends
+                    popularWithFriendsSection
+                }
                 // TODO: Subsequent sections (lists/cards) should share sectionStackSpacing
             }
             .padding(.top, FeedLayout.topContentPadding)
@@ -213,39 +222,82 @@ struct FeedView: View {
     }
 
     private var segmentSwitcher: some View {
-        HStack(spacing: 0) {
-            segmentButton(.all)
-            segmentButton(.friends)
+        ZStack(alignment: .leading) {
+            if let frame = segmentFrames[selectedSegment] {
+                indicatorView
+                    .frame(width: frame.width, height: frame.height)
+                    .offset(x: frame.minX)
+                    .animation(.snappy(duration: 0.25), value: frame)
+            }
+
+            HStack(spacing: 0) {
+                segmentButton(.all)
+                segmentButton(.friends)
+            }
+            .coordinateSpace(name: "SegmentSwitcherSpace")
         }
         .frame(height: 40)
         .padding(4)
-        .background(switcherGlass)
-        .liquidGlass(shape: Capsule(), strokeColor: Color.black.opacity(0.1))
+        .background(
+            Capsule()
+                .fill(switcherGlass)
+        )
+        .overlay(
+            Capsule()
+                .strokeBorder(segmentBorderColor, lineWidth: 1)
+        )
+        .liquidGlass(shape: Capsule())
+        .onPreferenceChange(SegmentFrameKey.self) { frames in
+            segmentFrames = frames
+        }
     }
 
     private func segmentButton(_ segment: FeedSegment) -> some View {
         let isActive = segment == selectedSegment
         return Button {
-            withAnimation(.snappy) {
+            withAnimation(.snappy(duration: 0.25)) {
                 selectedSegment = segment
             }
         } label: {
-                Text(segment.title)
-                    .typography(Typography.bodySecondary)
+            Text(segment.title)
+                .typography(Typography.bodySecondary)
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .contentShape(Rectangle())
                 .foregroundStyle(isActive ? Color.black : Palette.textThird)
+                .animation(.snappy(duration: 0.25), value: isActive)
+                .background(
+                    GeometryReader { proxy in
+                        Color.clear
+                            .preference(key: SegmentFrameKey.self,
+                                        value: [segment: proxy.frame(in: .named("SegmentSwitcherSpace"))])
+                    }
+                )
         }
-        .buttonStyle(.plain)
-        .background(
-            Capsule()
-                .fill(isActive ? Color.white : Color.clear)
+        .buttonStyle(SegmentButtonStyle())
+    }
+
+    private var indicatorView: some View {
+        Capsule()
+            .fill(switcherGlass)
+            .matchedGeometryEffect(id: "segmentIndicator", in: segmentAnim)
             .overlay(
                 Capsule()
-                    .strokeBorder(isActive ? Palette.divider : Color.clear, lineWidth: 1)
+                    .strokeBorder(segmentBorderColor, lineWidth: 1)
             )
-        )
     }
+
+private struct SegmentFrameKey: PreferenceKey {
+    static var defaultValue: [FeedSegment: CGRect] = [:]
+    static func reduce(value: inout [FeedSegment: CGRect], nextValue: () -> [FeedSegment: CGRect]) {
+        value.merge(nextValue()) { _, new in new }
+    }
+}
+
+private struct SegmentButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+    }
+}
 
     private var newFromFriends: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
@@ -489,7 +541,7 @@ private struct CircleGlassButton: View {
             Circle()
                 .fill(Color(hex: "F5F5F5").opacity(0.1))
                 .frame(width: 44, height: 44)
-                .liquidGlass(shape: Circle(), strokeColor: Color.black.opacity(0.1))
+                .liquidGlass(shape: Circle(), strokeColor: Color(hex: "E6E6E6"))
             Image(systemName: systemName)
                 .font(Typography.tabIcon.font)
                 .foregroundStyle(Color.black)
