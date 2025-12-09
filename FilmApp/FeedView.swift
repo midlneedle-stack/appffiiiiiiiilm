@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import Wave
 
 private enum FeedLayout {
     static let sectionSpacing: CGFloat = 10 // Vertical gap between each major block.
@@ -27,6 +28,33 @@ struct FeedView: View {
     @State private var selectedSegment: FeedSegment = .all
     @State private var reviewsSectionWidth: CGFloat? = nil
     @State private var segmentFrames: [FeedSegment: CGRect] = [:]
+    @State private var feedScale: CGFloat = 1
+    @State private var feedBlur: CGFloat = 0
+    @State private var feedOpacity: CGFloat = 1
+    @State private var isAnimatingTransition: Bool = false
+    @State private var debugLogEnabled: Bool = false
+    @State private var scaleUpTarget: Double = 1.015
+    @State private var maxBlur: Double = 6
+    @State private var peakOpacity: Double = 0.8
+    @State private var transitionDuration: Double = 0.2
+    @State private var settleDuration: Double = 0.2
+    @State private var transitionDamping: Double = 0.85
+    @State private var settleDamping: Double = 0.9
+    @State private var transitionResponse: Double = 0.2
+    @State private var settleResponse: Double = 0.2
+    @State private var newFromFriendsScaleEnabled: Bool = true
+    @State private var newFromFriendsBlurEnabled: Bool = true
+    @State private var newFromFriendsOpacityEnabled: Bool = true
+    @State private var showingAnimationSettings: Bool = false
+    @State private var scaleAnimator = SpringAnimator<CGFloat>(spring: .init(dampingRatio: 0.92, response: 0.15),
+                                                               value: 1,
+                                                               target: 1)
+    @State private var blurAnimator = SpringAnimator<CGFloat>(spring: .init(dampingRatio: 0.92, response: 0.15),
+                                                              value: 0,
+                                                              target: 0)
+    @State private var opacityAnimator = SpringAnimator<CGFloat>(spring: .init(dampingRatio: 0.92, response: 0.15),
+                                                                 value: 1,
+                                                                 target: 1)
     @Namespace private var segmentAnim
     private let newFromFriendsItems: [FriendItem] = [
         .init(name: "Egor", rating: 4, imageName: "challengers"),
@@ -187,25 +215,50 @@ struct FeedView: View {
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
                 segmentSwitcher
                     .padding(.horizontal, FeedLayout.sectionHorizontalInset)
-                if selectedSegment == .all {
-                    newFromFriends
-                    recentStories
-                    popularThisWeek
-                    reviewsFromFriends
-                    listsSection
-                    cannesSection
-                    popularWithFriendsSection
-                } else {
-                    newFromFriends
-                    reviewsFromFriends
-                    popularWithFriendsSection
-                }
+                animatedSectionContainer
                 // TODO: Subsequent sections (lists/cards) should share sectionStackSpacing
             }
             .padding(.top, FeedLayout.topContentPadding)
             .padding(.bottom, 120)
         }
+        .onAppear {
+            configureAnimators()
+        }
         .background(Color.white)
+    }
+
+    private var animatedSectionContainer: some View {
+        VStack(alignment: .center, spacing: FeedLayout.sectionStackSpacing) {
+            if selectedSegment == .all {
+                newFromFriendsBlock
+                animatedSection(recentStories)
+                animatedSection(popularThisWeek)
+                animatedSection(reviewsFromFriends)
+                animatedSection(listsSection)
+                animatedSection(cannesSection)
+                animatedSection(popularWithFriendsSection)
+            } else {
+                newFromFriendsBlock
+                animatedSection(reviewsFromFriends)
+                animatedSection(popularWithFriendsSection)
+            }
+        }
+        .scaleEffect(feedScale)
+    }
+
+    private func animatedSection<Content: View>(_ content: Content,
+                                                applyBlur: Bool = true,
+                                                applyOpacity: Bool = true) -> some View {
+        content
+            .blur(radius: applyBlur ? feedBlur : 0)
+            .opacity(applyOpacity ? feedOpacity : 1)
+    }
+
+    private var newFromFriendsBlock: some View {
+        animatedSection(newFromFriendsContent,
+                        applyBlur: newFromFriendsBlurEnabled,
+                        applyOpacity: newFromFriendsOpacityEnabled)
+            .scaleEffect(newFromFriendsScaleEnabled ? 1 : (feedScale == 0 ? 1 : 1 / feedScale))
     }
 
     private var header: some View {
@@ -216,7 +269,29 @@ struct FeedView: View {
                 Text("Letterboxd")
                     .typography(Typography.titleNav)
                 Spacer()
-                CircleGlassButton(systemName: "gearshape")
+                Button {
+                    showingAnimationSettings = true
+                } label: {
+                    CircleGlassButton(systemName: "gearshape")
+                }
+                .sheet(isPresented: $showingAnimationSettings) {
+            AnimationSettingsPanel(
+                scaleUpTarget: $scaleUpTarget,
+                maxBlur: $maxBlur,
+                peakOpacity: $peakOpacity,
+                transitionDuration: $transitionDuration,
+                settleDuration: $settleDuration,
+                transitionDamping: $transitionDamping,
+                settleDamping: $settleDamping,
+                transitionResponse: $transitionResponse,
+                settleResponse: $settleResponse,
+                newFromFriendsScaleEnabled: $newFromFriendsScaleEnabled,
+                newFromFriendsBlurEnabled: $newFromFriendsBlurEnabled,
+                newFromFriendsOpacityEnabled: $newFromFriendsOpacityEnabled,
+                debugLogEnabled: $debugLogEnabled,
+                resetAction: resetAnimationSettings
+            )
+                }
             }
         }
     }
@@ -226,8 +301,8 @@ struct FeedView: View {
             if let frame = segmentFrames[selectedSegment] {
                 indicatorView
                     .frame(width: frame.width, height: frame.height)
-            .offset(x: frame.minX)
-            .animation(.easeInOut(duration: 0.3), value: frame)
+                .offset(x: frame.minX)
+            .animation(.easeInOut(duration: 0.2), value: frame)
             }
 
             HStack(spacing: 0) {
@@ -252,11 +327,12 @@ struct FeedView: View {
         }
     }
 
-    private func segmentButton(_ segment: FeedSegment) -> some View {
+private func segmentButton(_ segment: FeedSegment) -> some View {
         let isActive = segment == selectedSegment
         return Button {
-            withAnimation(.easeInOut(duration: 0.3)) {
-                selectedSegment = segment
+            transitionSegment(to: segment)
+            if debugLogEnabled {
+                print("segment button tapped: \(segment.title) (animating: \(isAnimatingTransition))")
             }
         } label: {
             Text(segment.title)
@@ -286,7 +362,84 @@ struct FeedView: View {
             )
     }
 
-private struct SegmentFrameKey: PreferenceKey {
+    private func configureAnimators() {
+        scaleAnimator.valueChanged = { value in
+            feedScale = value
+        }
+        blurAnimator.valueChanged = { value in
+            feedBlur = value
+        }
+        opacityAnimator.valueChanged = { value in
+            feedOpacity = value
+        }
+    }
+
+    private func resetAnimationSettings() {
+        scaleUpTarget = 1.015
+        maxBlur = 6
+        peakOpacity = 0.8
+        transitionDuration = 0.2
+        settleDuration = 0.2
+        transitionDamping = 0.85
+        settleDamping = 0.9
+        transitionResponse = 0.2
+        settleResponse = 0.2
+        newFromFriendsScaleEnabled = true
+        newFromFriendsBlurEnabled = true
+        newFromFriendsOpacityEnabled = true
+        feedScale = 1
+        feedBlur = 0
+        feedOpacity = 1
+        scaleAnimator.spring = .init(dampingRatio: transitionDamping, response: transitionDuration)
+        scaleAnimator.value = 1
+        scaleAnimator.target = 1
+        blurAnimator.spring = .init(dampingRatio: transitionDamping, response: transitionDuration)
+        blurAnimator.value = 0
+        blurAnimator.target = 0
+        opacityAnimator.spring = .init(dampingRatio: transitionDamping, response: transitionDuration)
+        opacityAnimator.value = 1
+        opacityAnimator.target = 1
+    }
+
+    private func transitionSegment(to segment: FeedSegment) {
+        guard selectedSegment != segment, !isAnimatingTransition else { return }
+        Task { @MainActor in
+            isAnimatingTransition = true
+            if debugLogEnabled { print("starting transition to \(segment.title)") }
+            animate(to: CGFloat(scaleUpTarget),
+                    blur: CGFloat(maxBlur),
+                    opacity: CGFloat(peakOpacity),
+                    duration: transitionDuration,
+                    damping: transitionDamping,
+                    response: transitionResponse)
+            try? await Task.sleep(nanoseconds: nanoseconds(for: transitionDuration))
+            selectedSegment = segment
+            animate(to: 1, blur: 0, opacity: 1, duration: settleDuration, damping: settleDamping, response: settleResponse)
+            try? await Task.sleep(nanoseconds: nanoseconds(for: settleDuration))
+            isAnimatingTransition = false
+            if debugLogEnabled { print("finished transition to \(segment.title)") }
+        }
+    }
+
+    private func animate(to scale: CGFloat, blur: CGFloat, opacity: CGFloat, duration: Double, damping: Double, response: Double) {
+        scaleAnimator.spring = .init(dampingRatio: damping, response: response)
+        scaleAnimator.target = scale
+        scaleAnimator.start()
+
+        blurAnimator.spring = .init(dampingRatio: damping, response: response)
+        blurAnimator.target = blur
+        blurAnimator.start()
+
+        opacityAnimator.spring = .init(dampingRatio: damping, response: response)
+        opacityAnimator.target = opacity
+        opacityAnimator.start()
+    }
+
+    private func nanoseconds(for seconds: Double) -> UInt64 {
+        UInt64(max(0, seconds * 1_000_000_000))
+    }
+
+    private struct SegmentFrameKey: PreferenceKey {
     static var defaultValue: [FeedSegment: CGRect] = [:]
     static func reduce(value: inout [FeedSegment: CGRect], nextValue: () -> [FeedSegment: CGRect]) {
         value.merge(nextValue()) { _, new in new }
@@ -299,7 +452,7 @@ private struct SegmentButtonStyle: ButtonStyle {
     }
 }
 
-    private var newFromFriends: some View {
+    private var newFromFriendsContent: some View {
         VStack(alignment: .leading, spacing: FeedLayout.sectionSpacing) {
             sectionHeading("New from friends")
 
@@ -783,6 +936,129 @@ private extension FeedView {
             BottomCorners(radius: FeedLayout.cardCornerRadius)
                 .stroke(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
         )
+    }
+}
+
+private struct AnimationSettingsPanel: View {
+    @Environment(\.dismiss) private var dismiss
+    @Binding var scaleUpTarget: Double
+    @Binding var maxBlur: Double
+    @Binding var peakOpacity: Double
+    @Binding var transitionDuration: Double
+    @Binding var settleDuration: Double
+    @Binding var transitionDamping: Double
+    @Binding var settleDamping: Double
+    @Binding var transitionResponse: Double
+    @Binding var settleResponse: Double
+
+    @Binding var newFromFriendsScaleEnabled: Bool
+    @Binding var newFromFriendsBlurEnabled: Bool
+    @Binding var newFromFriendsOpacityEnabled: Bool
+
+    @Binding var debugLogEnabled: Bool
+    let resetAction: () -> Void
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    Toggle("Debug transition logging", isOn: $debugLogEnabled)
+                    Button("Reset feed animation", action: resetAction)
+                    Text("Весь переход выполняется одним движением: scale, blur и opacity двигаются одновременно в пик, затем возвращаются к норме.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Scale target") {
+                    VStack(alignment: .leading) {
+                        Text("Scale peak \(scaleUpTarget, format: .number.precision(.fractionLength(3)))")
+                            .font(.caption)
+                        Slider(value: $scaleUpTarget, in: 1.0...1.1, step: 0.001)
+                    }
+                }
+
+                Section("Blur & opacity") {
+                    VStack(alignment: .leading) {
+                        Text("Max blur \(maxBlur, format: .number.precision(.fractionLength(2)))")
+                            .font(.caption)
+                        Slider(value: $maxBlur, in: 4...12, step: 0.5)
+                    }
+                    VStack(alignment: .leading) {
+                        Text("Opacity at peak \(peakOpacity, format: .number.precision(.fractionLength(2)))")
+                            .font(.caption)
+                        Slider(value: $peakOpacity, in: 0.0...1.0, step: 0.01)
+                    }
+                    Text("Можно опустить до 0, чтобы сделать карточки полностью прозрачными на пике.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                    Text("Blur и opacity достигают значения пика одновременно с масштабом.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Timing") {
+                    VStack(alignment: .leading) {
+                        Text("Transition duration \(transitionDuration, format: .number.precision(.fractionLength(2)))s")
+                            .font(.caption)
+                        Slider(value: $transitionDuration, in: 0.1...0.4, step: 0.01)
+                    }
+                    VStack(alignment: .leading) {
+                        Text("Settle duration \(settleDuration, format: .number.precision(.fractionLength(2)))s")
+                            .font(.caption)
+                        Slider(value: $settleDuration, in: 0.1...0.4, step: 0.01)
+                    }
+                }
+
+                Section("Spring response") {
+                    VStack(alignment: .leading) {
+                        Text("Transition response \(transitionResponse, format: .number.precision(.fractionLength(2)))s")
+                            .font(.caption)
+                        Slider(value: $transitionResponse, in: 0.1...0.4, step: 0.01)
+                    }
+                    VStack(alignment: .leading) {
+                        Text("Settle response \(settleResponse, format: .number.precision(.fractionLength(2)))s")
+                            .font(.caption)
+                        Slider(value: $settleResponse, in: 0.1...0.4, step: 0.01)
+                    }
+                    Text("Response задаёт кривую пружины: выше — быстрее доходит до пика без «застревания».")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Spring damping") {
+                    VStack(alignment: .leading) {
+                        Text("Transition damping \(transitionDamping, format: .number.precision(.fractionLength(2)))")
+                            .font(.caption)
+                        Slider(value: $transitionDamping, in: 0.6...1.1, step: 0.01)
+                    }
+                    VStack(alignment: .leading) {
+                        Text("Settle damping \(settleDamping, format: .number.precision(.fractionLength(2)))")
+                            .font(.caption)
+                        Slider(value: $settleDamping, in: 0.6...1.1, step: 0.01)
+                    }
+                    Text("Меньший damping делает анимацию более звонкой, больший — более плавной.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("New from friends animation") {
+                    Toggle("Scale", isOn: $newFromFriendsScaleEnabled)
+                    Toggle("Blur", isOn: $newFromFriendsBlurEnabled)
+                    Toggle("Opacity", isOn: $newFromFriendsOpacityEnabled)
+                    Text("Когда флаг выключен, соответствующий параметр будет зафиксирован у блока Нового от друзей.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Animation")
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                }
+            }
+        }
     }
 }
 
