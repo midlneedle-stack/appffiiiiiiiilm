@@ -34,14 +34,14 @@ struct FeedView: View {
     @State private var isAnimatingTransition: Bool = false
     @State private var debugLogEnabled: Bool = false
     @State private var scaleUpTarget: Double = 1.015
-    @State private var maxBlur: Double = 6
-    @State private var peakOpacity: Double = 0.8
-    @State private var transitionDuration: Double = 0.2
-    @State private var settleDuration: Double = 0.2
-    @State private var transitionDamping: Double = 0.85
+    @State private var maxBlur: Double = 8
+    @State private var peakOpacity: Double = 0.2
+    @State private var transitionDuration: Double = 0.15
+    @State private var settleDuration: Double = 0.1
+    @State private var transitionDamping: Double = 1.0
     @State private var settleDamping: Double = 0.9
-    @State private var transitionResponse: Double = 0.2
-    @State private var settleResponse: Double = 0.2
+    @State private var transitionResponse: Double = 0.4
+    @State private var settleResponse: Double = 0.4
     @State private var newFromFriendsScaleEnabled: Bool = true
     @State private var newFromFriendsBlurEnabled: Bool = true
     @State private var newFromFriendsOpacityEnabled: Bool = true
@@ -238,9 +238,9 @@ struct FeedView: View {
                 animatedSection(cannesSection)
                 animatedSection(popularWithFriendsSection)
             } else {
-                newFromFriendsBlock
-                animatedSection(reviewsFromFriends)
                 animatedSection(popularWithFriendsSection)
+                animatedSection(reviewsFromFriends)
+                newFromFriendsBlock
             }
         }
         .scaleEffect(feedScale)
@@ -376,14 +376,14 @@ private func segmentButton(_ segment: FeedSegment) -> some View {
 
     private func resetAnimationSettings() {
         scaleUpTarget = 1.015
-        maxBlur = 6
-        peakOpacity = 0.8
-        transitionDuration = 0.2
-        settleDuration = 0.2
-        transitionDamping = 0.85
+        maxBlur = 8
+        peakOpacity = 0.2
+        transitionDuration = 0.15
+        settleDuration = 0.1
+        transitionDamping = 1.0
         settleDamping = 0.9
-        transitionResponse = 0.2
-        settleResponse = 0.2
+        transitionResponse = 0.4
+        settleResponse = 0.4
         newFromFriendsScaleEnabled = true
         newFromFriendsBlurEnabled = true
         newFromFriendsOpacityEnabled = true
