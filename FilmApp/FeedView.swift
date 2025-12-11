@@ -406,8 +406,8 @@ struct FeedView: View {
         }
     }
 
-    private var segmentIndicatorSpring: Spring {
-        .init(dampingRatio: segmentIndicatorDamping, response: segmentIndicatorResponse)
+    private var segmentIndicatorSpring: Wave.Spring {
+        Wave.Spring(dampingRatio: segmentIndicatorDamping, response: segmentIndicatorResponse)
     }
 
     private func updateSegmentIndicatorTargets() {
