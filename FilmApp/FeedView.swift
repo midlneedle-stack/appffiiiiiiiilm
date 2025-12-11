@@ -70,6 +70,7 @@ struct FeedView: View {
         value: 0,
         target: 0
     )
+    private let segmentIndicatorInsets = EdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
     private let newFromFriendsItems: [FriendItem] = [
         .init(name: "Egor", rating: 4, imageName: "challengers"),
         .init(name: "Yana", rating: 5, imageName: "saturday_night"),
@@ -336,16 +337,16 @@ struct FeedView: View {
         .onPreferenceChange(SegmentFrameKey.self) { frames in
             segmentFrames = frames
         }
-        .onChange(of: segmentFrames) { _ in
+        .onChange(of: segmentFrames) {
             updateSegmentIndicatorTargets()
         }
-        .onChange(of: selectedSegment) { _ in
+        .onChange(of: selectedSegment) {
             updateSegmentIndicatorTargets()
         }
-        .onChange(of: segmentIndicatorResponse) { _ in
+        .onChange(of: segmentIndicatorResponse) {
             updateSegmentIndicatorTargets()
         }
-        .onChange(of: segmentIndicatorDamping) { _ in
+        .onChange(of: segmentIndicatorDamping) {
             updateSegmentIndicatorTargets()
         }
     }
@@ -383,8 +384,7 @@ struct FeedView: View {
                 Capsule()
                     .strokeBorder(segmentBorderColor, lineWidth: 1)
             )
-            .offset(x: indicatorOffset)
-            .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
+            .offset(x: indicatorOffset, y: segmentIndicatorInsets.top)
             .allowsHitTesting(false)
     }
 
@@ -408,18 +408,23 @@ struct FeedView: View {
 
     private func updateSegmentIndicatorTargets() {
         guard let frame = segmentFrames[selectedSegment] else { return }
-        indicatorHeight = frame.height
+        let horizontalInset = segmentIndicatorInsets.leading + segmentIndicatorInsets.trailing
+        let verticalInset = segmentIndicatorInsets.top + segmentIndicatorInsets.bottom
+        let adjustedWidth = max(frame.width - horizontalInset, 0)
+        let adjustedHeight = max(frame.height - verticalInset, 0)
+        indicatorHeight = adjustedHeight
         let shouldSnap = indicatorWidth == 0 && indicatorOffset == 0
         let spring = Spring(dampingRatio: segmentIndicatorDamping, response: segmentIndicatorResponse)
         indicatorOffsetAnimator.spring = spring
         indicatorWidthAnimator.spring = spring
-        indicatorOffsetAnimator.target = frame.minX
-        indicatorWidthAnimator.target = frame.width
+        let targetOffset = frame.minX + segmentIndicatorInsets.leading
+        indicatorOffsetAnimator.target = targetOffset
+        indicatorWidthAnimator.target = adjustedWidth
         if shouldSnap {
-            indicatorOffsetAnimator.value = frame.minX
-            indicatorWidthAnimator.value = frame.width
-            indicatorOffset = frame.minX
-            indicatorWidth = frame.width
+            indicatorOffsetAnimator.value = targetOffset
+            indicatorWidthAnimator.value = adjustedWidth
+            indicatorOffset = targetOffset
+            indicatorWidth = adjustedWidth
         }
         indicatorOffsetAnimator.start()
         indicatorWidthAnimator.start()
