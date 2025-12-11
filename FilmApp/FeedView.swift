@@ -42,6 +42,8 @@ struct FeedView: View {
     @State private var settleDamping: Double = 0.9
     @State private var transitionResponse: Double = 0.4
     @State private var settleResponse: Double = 0.4
+    @State private var segmentIndicatorResponse: Double = 0.4
+    @State private var segmentIndicatorDamping: Double = 1.0
     @State private var newFromFriendsScaleEnabled: Bool = true
     @State private var newFromFriendsBlurEnabled: Bool = true
     @State private var newFromFriendsOpacityEnabled: Bool = true
@@ -55,7 +57,19 @@ struct FeedView: View {
     @State private var opacityAnimator = SpringAnimator<CGFloat>(spring: .init(dampingRatio: 0.92, response: 0.15),
                                                                  value: 1,
                                                                  target: 1)
-    @Namespace private var segmentAnim
+    @State private var indicatorOffset: CGFloat = 0
+    @State private var indicatorWidth: CGFloat = 0
+    @State private var indicatorHeight: CGFloat = 40
+    @State private var indicatorOffsetAnimator = SpringAnimator<CGFloat>(
+        spring: .init(dampingRatio: 1.0, response: 0.4),
+        value: 0,
+        target: 0
+    )
+    @State private var indicatorWidthAnimator = SpringAnimator<CGFloat>(
+        spring: .init(dampingRatio: 1.0, response: 0.4),
+        value: 0,
+        target: 0
+    )
     private let newFromFriendsItems: [FriendItem] = [
         .init(name: "Egor", rating: 4, imageName: "challengers"),
         .init(name: "Yana", rating: 5, imageName: "saturday_night"),
@@ -285,6 +299,8 @@ struct FeedView: View {
                 settleDamping: $settleDamping,
                 transitionResponse: $transitionResponse,
                 settleResponse: $settleResponse,
+                segmentIndicatorResponse: $segmentIndicatorResponse,
+                segmentIndicatorDamping: $segmentIndicatorDamping,
                 newFromFriendsScaleEnabled: $newFromFriendsScaleEnabled,
                 newFromFriendsBlurEnabled: $newFromFriendsBlurEnabled,
                 newFromFriendsOpacityEnabled: $newFromFriendsOpacityEnabled,
@@ -298,18 +314,12 @@ struct FeedView: View {
 
     private var segmentSwitcher: some View {
         ZStack(alignment: .leading) {
-            if let frame = segmentFrames[selectedSegment] {
-                indicatorView
-                    .frame(width: frame.width, height: frame.height)
-                .offset(x: frame.minX)
-            .animation(.easeInOut(duration: 0.2), value: frame)
-            }
+            indicatorView
 
             HStack(spacing: 0) {
                 segmentButton(.all)
                 segmentButton(.friends)
             }
-            .coordinateSpace(name: "SegmentSwitcherSpace")
         }
         .frame(height: 40)
         .padding(4)
@@ -322,12 +332,25 @@ struct FeedView: View {
                 .strokeBorder(segmentBorderColor, lineWidth: 1)
         )
         .liquidGlass(shape: Capsule())
+        .coordinateSpace(name: "SegmentSwitcherSpace")
         .onPreferenceChange(SegmentFrameKey.self) { frames in
             segmentFrames = frames
         }
+        .onChange(of: segmentFrames) { _ in
+            updateSegmentIndicatorTargets()
+        }
+        .onChange(of: selectedSegment) { _ in
+            updateSegmentIndicatorTargets()
+        }
+        .onChange(of: segmentIndicatorResponse) { _ in
+            updateSegmentIndicatorTargets()
+        }
+        .onChange(of: segmentIndicatorDamping) { _ in
+            updateSegmentIndicatorTargets()
+        }
     }
 
-private func segmentButton(_ segment: FeedSegment) -> some View {
+    private func segmentButton(_ segment: FeedSegment) -> some View {
         let isActive = segment == selectedSegment
         return Button {
             transitionSegment(to: segment)
@@ -355,11 +378,14 @@ private func segmentButton(_ segment: FeedSegment) -> some View {
     private var indicatorView: some View {
         Capsule()
             .fill(switcherGlass)
-            .matchedGeometryEffect(id: "segmentIndicator", in: segmentAnim)
+            .frame(width: max(indicatorWidth, 0), height: indicatorHeight)
             .overlay(
                 Capsule()
                     .strokeBorder(segmentBorderColor, lineWidth: 1)
             )
+            .offset(x: indicatorOffset)
+            .shadow(color: .black.opacity(0.08), radius: 10, x: 0, y: 4)
+            .allowsHitTesting(false)
     }
 
     private func configureAnimators() {
@@ -372,6 +398,34 @@ private func segmentButton(_ segment: FeedSegment) -> some View {
         opacityAnimator.valueChanged = { value in
             feedOpacity = value
         }
+        indicatorOffsetAnimator.valueChanged = { value in
+            indicatorOffset = value
+        }
+        indicatorWidthAnimator.valueChanged = { value in
+            indicatorWidth = value
+        }
+    }
+
+    private var segmentIndicatorSpring: Spring {
+        .init(dampingRatio: segmentIndicatorDamping, response: segmentIndicatorResponse)
+    }
+
+    private func updateSegmentIndicatorTargets() {
+        guard let frame = segmentFrames[selectedSegment] else { return }
+        indicatorHeight = frame.height
+        let shouldSnap = indicatorWidth == 0 && indicatorOffset == 0
+        indicatorOffsetAnimator.spring = segmentIndicatorSpring
+        indicatorWidthAnimator.spring = segmentIndicatorSpring
+        indicatorOffsetAnimator.target = frame.minX
+        indicatorWidthAnimator.target = frame.width
+        if shouldSnap {
+            indicatorOffsetAnimator.value = frame.minX
+            indicatorWidthAnimator.value = frame.width
+            indicatorOffset = frame.minX
+            indicatorWidth = frame.width
+        }
+        indicatorOffsetAnimator.start()
+        indicatorWidthAnimator.start()
     }
 
     private func resetAnimationSettings() {
@@ -384,6 +438,8 @@ private func segmentButton(_ segment: FeedSegment) -> some View {
         settleDamping = 0.9
         transitionResponse = 0.4
         settleResponse = 0.4
+        segmentIndicatorResponse = 0.4
+        segmentIndicatorDamping = 1.0
         newFromFriendsScaleEnabled = true
         newFromFriendsBlurEnabled = true
         newFromFriendsOpacityEnabled = true
@@ -950,6 +1006,8 @@ private struct AnimationSettingsPanel: View {
     @Binding var settleDamping: Double
     @Binding var transitionResponse: Double
     @Binding var settleResponse: Double
+    @Binding var segmentIndicatorResponse: Double
+    @Binding var segmentIndicatorDamping: Double
 
     @Binding var newFromFriendsScaleEnabled: Bool
     @Binding var newFromFriendsBlurEnabled: Bool
@@ -1037,6 +1095,22 @@ private struct AnimationSettingsPanel: View {
                         Slider(value: $settleDamping, in: 0.6...1.1, step: 0.01)
                     }
                     Text("Меньший damping делает анимацию более звонкой, больший — более плавной.")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Segment capsule animation") {
+                    VStack(alignment: .leading) {
+                        Text("Response \(segmentIndicatorResponse, format: .number.precision(.fractionLength(2)))s")
+                            .font(.caption)
+                        Slider(value: $segmentIndicatorResponse, in: 0.1...0.8, step: 0.01)
+                    }
+                    VStack(alignment: .leading) {
+                        Text("Damping \(segmentIndicatorDamping, format: .number.precision(.fractionLength(2)))")
+                            .font(.caption)
+                        Slider(value: $segmentIndicatorDamping, in: 0.6...1.2, step: 0.01)
+                    }
+                    Text("Настройки задают пружину, которая двигает капсулу индикатора сегментов.")
                         .font(.caption2)
                         .foregroundStyle(.secondary)
                 }
