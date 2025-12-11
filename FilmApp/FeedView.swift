@@ -410,10 +410,14 @@ struct FeedView: View {
         guard let frame = segmentFrames[selectedSegment] else { return }
         indicatorHeight = frame.height
         let shouldSnap = indicatorWidth == 0 && indicatorOffset == 0
-        let spring = Spring(dampingRatio: segmentIndicatorDamping, response: segmentIndicatorResponse)
+        // Keep capsule motion in sync with the feed transition spring.
+        let spring = Spring(dampingRatio: transitionDamping, response: transitionResponse)
         indicatorOffsetAnimator.spring = spring
         indicatorWidthAnimator.spring = spring
         let targetOffset = frame.minX
+        // Align animator state to the current presentation before retargeting to prevent micro-jitter.
+        indicatorOffsetAnimator.value = indicatorOffset
+        indicatorWidthAnimator.value = indicatorWidth
         indicatorOffsetAnimator.target = targetOffset
         indicatorWidthAnimator.target = frame.width
         if shouldSnap {
