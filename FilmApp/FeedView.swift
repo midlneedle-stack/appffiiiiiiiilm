@@ -406,16 +406,13 @@ struct FeedView: View {
         }
     }
 
-    private var segmentIndicatorSpring: Wave.Spring {
-        Wave.Spring(dampingRatio: segmentIndicatorDamping, response: segmentIndicatorResponse)
-    }
-
     private func updateSegmentIndicatorTargets() {
         guard let frame = segmentFrames[selectedSegment] else { return }
         indicatorHeight = frame.height
         let shouldSnap = indicatorWidth == 0 && indicatorOffset == 0
-        indicatorOffsetAnimator.spring = segmentIndicatorSpring
-        indicatorWidthAnimator.spring = segmentIndicatorSpring
+        let spring = Spring(dampingRatio: segmentIndicatorDamping, response: segmentIndicatorResponse)
+        indicatorOffsetAnimator.spring = spring
+        indicatorWidthAnimator.spring = spring
         indicatorOffsetAnimator.target = frame.minX
         indicatorWidthAnimator.target = frame.width
         if shouldSnap {
