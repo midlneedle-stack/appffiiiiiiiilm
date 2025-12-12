@@ -25,7 +25,6 @@ struct FilmPage: View {
     var onClose: () -> Void = {}
     var onOpenLink: () -> Void = {}
     @State private var selectedTab: Tab = .feed
-    @State private var carouselIndex: Int = 0
     private let filmInfo = FilmInfo(title: "Sentimental Value",
                                     posterImageName: "film_page_sentimental_value",
                                     rating: 4.2,
@@ -143,9 +142,9 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
     }
 
     private var filmCarouselBlock: some View {
-        ScrollViewReader { proxy in
+        GeometryReader { geometry in
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: FilmCarouselLayout.cardSpacing) {
+                LazyHStack(spacing: FilmCarouselLayout.cardSpacing) {
                     ForEach(loopedCarouselItems.indices, id: \.self) { index in
                         let item = loopedCarouselItems[index]
 
@@ -156,19 +155,12 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
                             }
                     }
                 }
-                .padding(.horizontal, FilmPageLayout.horizontalInset)
+                .scrollTargetLayout()
             }
-            .onAppear {
-                let centerIndex = carouselItems.count + 1 // Middle item of the middle triplet (cart_1)
-                carouselIndex = centerIndex
-                proxy.scrollTo(centerIndex, anchor: .center)
-            }
-            .gesture(
-                DragGesture()
-                    .onEnded { value in
-                        snapCarousel(using: value, proxy: proxy)
-                    }
-            )
+            .scrollTargetBehavior(.viewAligned)
+            .contentMargins(.horizontal,
+                            (geometry.size.width - FilmCarouselLayout.cardWidth) / 2,
+                            for: .scrollContent)
         }
         .frame(height: FilmCarouselLayout.cardHeight)
     }
@@ -292,33 +284,6 @@ struct FilmInfoBottomCorners: InsettableShape {
 private extension FilmPage {
     var loopedCarouselItems: [CarouselItem] {
         carouselItems + carouselItems + carouselItems
-    }
-
-    func snapCarousel(using value: DragGesture.Value, proxy: ScrollViewProxy) {
-        let translation = value.translation.width
-        let velocity = value.predictedEndTranslation.width - translation
-
-        let direction: Int
-        if abs(velocity) > 20 {
-            direction = velocity < 0 ? 1 : -1
-        } else {
-            direction = translation < 0 ? 1 : -1
-        }
-
-        let baseCount = carouselItems.count
-        guard baseCount > 0 else { return }
-        var targetIndex = carouselIndex + direction
-
-        if targetIndex < baseCount {
-            targetIndex += baseCount
-        } else if targetIndex >= baseCount * 2 {
-            targetIndex -= baseCount
-        }
-
-        carouselIndex = targetIndex
-        withAnimation(.easeOut(duration: 0.25)) {
-            proxy.scrollTo(targetIndex, anchor: .center)
-        }
     }
 }
 
