@@ -8,6 +8,8 @@
 - **Reuse style tokens.** When adjusting spacing, typography, or colors, favor the existing enums (`Typography`, `Palette`, `FeedLayout`, etc.) so spacing changes stay consistent across the UI.
 - **Horizontal scroll padding.** When designing horizontal scroll views, give them 18pt horizontal breathing room with `.contentMargins(.horizontal, FeedLayout.sectionHorizontalInset, for: .scrollContent)` so the first/last cards never start flush against the screen yet still scroll all the way to the edges; don’t revert this by reintroducing `padding(.horizontal, …)` on the parent.
 - **Use local screen context.** `UIScreen.main` (and `UIScreen.mainScreen`) are deprecated on iOS 26; derive widths from the current view’s geometry or safe-area context (`GeometryReader`, `.containerRelativeFrame()`, `.safeAreaInsets`, etc.) instead of relying on global screen metrics so the layout always matches the active window scene.
+- **No unsolicited git pushes.** Only push commits/branches when explicitly asked by the user.
+- **Respect user-edited code.** If the user made changes outside your edits, do not modify or revert them unless they explicitly request it.
 
 <p align="center">
     <img width="400" src="./Assets/Logo.png">

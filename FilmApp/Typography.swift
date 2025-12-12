@@ -17,7 +17,7 @@ enum Typography {
     static let sectionTitle = Style(font: .system(size: 24, weight: .semibold),
                                     tracking: -0.2,
                                     lineSpacing: nil)
-    // Section headers like “Lists”, “Recent stories”, and “Reviews”.
+    // Section headers like “Lists”, “Recent stories”, and “Reviews”, plus FilmPage titles.
 
     static let cardTitle = Style(font: .system(size: 10, weight: .medium),
                                  tracking: -0.2,
@@ -42,7 +42,12 @@ enum Typography {
     static let bodyPrimary = Style(font: .system(size: 14, weight: .medium),
                                    tracking: -0.2,
                                    lineSpacing: 0)
-    // Review bodies and similar medium-weight copy requiring line spacing control.
+    // Review bodies, FilmPage info labels, and other medium-weight copy requiring line spacing control.
+
+    static let filmInfoRating = Style(font: .system(size: 12, weight: .medium),
+                                      tracking: -0.2,
+                                      lineSpacing: nil)
+    // Rating text shown inside the Film info card bar.
 
     static let bodySecondary = Style(font: .system(size: 14, weight: .medium),
                                      tracking: -0.2,
