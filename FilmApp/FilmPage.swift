@@ -40,11 +40,22 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
         .init(imageName: "cart_1"),
         .init(imageName: "cart_3")
     ]
+    private let watchedByItems: [WatchedByItem] = [
+        .init(rating: 4),
+        .init(rating: 5),
+        .init(rating: 3),
+        .init(rating: 4),
+        .init(rating: 5),
+        .init(rating: 4),
+        .init(rating: 3),
+        .init(rating: 5)
+    ]
 
     var body: some View {
         VStack(spacing: FilmPageLayout.sectionStackSpacing) {
             header
             filmInfoBlock
+            watchedByBlock
             filmCarouselBlock
             Spacer()
         }
@@ -112,6 +123,25 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
             )
     }
 
+    private var watchedByBlock: some View {
+        VStack(alignment: .leading, spacing: FilmPageInfoLayout.cardSynopsisSpacing) {
+            Text("Watched by")
+                .typography(Typography.sectionTitle)
+                .foregroundStyle(Palette.textPrimary)
+                .padding(.horizontal, FilmPageLayout.horizontalInset + FeedLayout.titleHorizontalPadding)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 10) {
+                    ForEach(watchedByItems) { item in
+                        WatchedByCard(item: item)
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .contentMargins(.horizontal, FilmPageLayout.horizontalInset, for: .scrollContent)
+        }
+    }
+
     private var filmCarouselBlock: some View {
         ScrollViewReader { proxy in
             ScrollView(.horizontal, showsIndicators: false) {
@@ -172,6 +202,11 @@ private struct FilmInfo {
 private struct CarouselItem: Identifiable {
     let id = UUID()
     let imageName: String
+}
+
+private struct WatchedByItem: Identifiable {
+    let id = UUID()
+    let rating: Int
 }
 
 private struct FilmInfoCard: View {
@@ -301,6 +336,40 @@ private struct FilmCarouselCard: View {
                     .strokeBorder(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
             )
             .clipped()
+    }
+}
+
+private struct WatchedByCard: View {
+    let item: WatchedByItem
+
+    var body: some View {
+        VStack(spacing: 4) {
+            Circle()
+                .fill(Palette.surface)
+                .frame(width: 60, height: 60)
+                .overlay(
+                    Circle()
+                        .strokeBorder(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
+                )
+                .overlay(
+                    Image(systemName: "person.fill")
+                        .font(.system(size: 24, weight: .semibold))
+                        .foregroundStyle(Palette.textSecondary)
+                )
+
+            HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                    .font(Typography.cardTitle.font)
+                    .foregroundStyle(Palette.textPrimary)
+
+                Text("\(item.rating)")
+                    .typography(Typography.filmInfoRating)
+                    .foregroundStyle(Palette.textPrimary)
+            }
+            .frame(width: 60, height: 26)
+            .background(Palette.surface)
+            .clipShape(Capsule())
+        }
     }
 }
 
