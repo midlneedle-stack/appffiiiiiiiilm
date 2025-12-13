@@ -16,8 +16,8 @@ private enum FilmPageInfoLayout {
 }
 
 private enum FilmCarouselLayout {
-    static let cardWidth: CGFloat = 268 // Width of each carousel card.
-    static let cardHeight: CGFloat = 152 // Height of each carousel card.
+    static let cardWidth: CGFloat = 292 // Width of each carousel card.
+    static let cardHeight: CGFloat = 166 // Height of each carousel card.
     static let cardSpacing: CGFloat = 6 // Horizontal spacing between carousel cards.
 }
 
@@ -54,8 +54,8 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
         VStack(spacing: FilmPageLayout.sectionStackSpacing) {
             header
             filmInfoBlock
-            watchedByBlock
             filmCarouselBlock
+            watchedByBlock
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
@@ -143,24 +143,30 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
 
     private var filmCarouselBlock: some View {
         GeometryReader { geometry in
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: FilmCarouselLayout.cardSpacing) {
-                    ForEach(loopedCarouselItems.indices, id: \.self) { index in
-                        let item = loopedCarouselItems[index]
+            ScrollViewReader { proxy in
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: FilmCarouselLayout.cardSpacing) {
+                        ForEach(loopedCarouselItems.indices, id: \.self) { index in
+                            let item = loopedCarouselItems[index]
 
-                        FilmCarouselCard(item: item)
-                            .id(index)
-                            .scrollTransition(.interactive, axis: .horizontal) { view, phase in
-                                view.opacity(phase.isIdentity ? 1.0 : 0.6)
-                            }
+                            FilmCarouselCard(item: item)
+                                .id(index)
+                                .scrollTransition(.interactive, axis: .horizontal) { view, phase in
+                                    view.opacity(phase.isIdentity ? 1.0 : 0.6)
+                                }
+                        }
                     }
+                    .scrollTargetLayout()
                 }
-                .scrollTargetLayout()
+                .scrollTargetBehavior(.viewAligned)
+                .contentMargins(.horizontal,
+                                (geometry.size.width - FilmCarouselLayout.cardWidth) / 2,
+                                for: .scrollContent)
+                .onAppear {
+                    let centerIndex = loopedCarouselItems.count / 2
+                    proxy.scrollTo(centerIndex, anchor: .center)
+                }
             }
-            .scrollTargetBehavior(.viewAligned)
-            .contentMargins(.horizontal,
-                            (geometry.size.width - FilmCarouselLayout.cardWidth) / 2,
-                            for: .scrollContent)
         }
         .frame(height: FilmCarouselLayout.cardHeight)
     }
