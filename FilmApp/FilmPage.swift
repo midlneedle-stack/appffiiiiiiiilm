@@ -51,16 +51,18 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
     ]
 
     var body: some View {
-        VStack(spacing: FilmPageLayout.sectionStackSpacing) {
-            header
-            filmInfoBlock
-            filmCarouselBlock
-            actionButtonsBlock
-            watchedByBlock
-            Spacer()
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: FilmPageLayout.sectionStackSpacing) {
+                header
+                filmInfoBlock
+                filmCarouselBlock
+                actionButtonsBlock
+                watchedByBlock
+            }
+            .frame(maxWidth: .infinity, alignment: .top)
+            .padding(.top, FilmPageLayout.topInset)
+            .padding(.bottom, 120) // leave room for the tab bar overlay
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-        .padding(.top, FilmPageLayout.topInset)
         .background(Color(.systemBackground))
         .overlay(alignment: .bottom) {
             TabBar(selectedTab: $selectedTab)
@@ -144,14 +146,14 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
 
     private var actionButtonsBlock: some View {
         HStack(spacing: 8) {
-            CircleGlassButton(systemName: "bookmark")
-                .frame(width: 54, height: 54)
+            PlainCircleButton(systemName: "bookmark")
+                .frame(width: 52, height: 52)
 
             RateActionButton()
-                .frame(height: 54)
+                .frame(height: 52)
 
-            CircleGlassButton(systemName: "heart")
-                .frame(width: 54, height: 54)
+            PlainCircleButton(systemName: "heart")
+                .frame(width: 52, height: 52)
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .padding(.horizontal, FilmPageLayout.horizontalInset)
@@ -163,9 +165,7 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
                 ScrollView(.horizontal, showsIndicators: false) {
                     LazyHStack(spacing: FilmCarouselLayout.cardSpacing) {
                         ForEach(loopedCarouselItems.indices, id: \.self) { index in
-                            let item = loopedCarouselItems[index]
-
-                            FilmCarouselCard(item: item)
+                            FilmCarouselCard(item: loopedCarouselItems[index])
                                 .id(index)
                                 .scrollTransition(.interactive, axis: .horizontal) { view, phase in
                                     view.opacity(phase.isIdentity ? 1.0 : 0.6)
@@ -175,12 +175,15 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
                     .scrollTargetLayout()
                 }
                 .scrollTargetBehavior(.viewAligned)
-                .contentMargins(.horizontal,
-                                (geometry.size.width - FilmCarouselLayout.cardWidth) / 2,
-                                for: .scrollContent)
+                .contentMargins(
+                    .horizontal,
+                    (geometry.size.width - FilmCarouselLayout.cardWidth) / 2,
+                    for: .scrollContent)
                 .onAppear {
                     let centerIndex = loopedCarouselItems.count / 2
-                    proxy.scrollTo(centerIndex, anchor: .center)
+                    DispatchQueue.main.async {
+                        proxy.scrollTo(centerIndex, anchor: .center)
+                    }
                 }
             }
         }
@@ -223,11 +226,30 @@ private struct WatchedByItem: Identifiable {
     let rating: Int
 }
 
+private struct PlainCircleButton: View {
+    let systemName: String
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color(hex: "FCFCFC"))
+                .frame(width: 52, height: 52)
+                .overlay(
+                    Circle()
+                        .strokeBorder(Palette.divider, lineWidth: FeedLayout.cardStrokeWidth)
+                )
+            Image(systemName: systemName)
+                .font(Typography.tabIcon.font)
+                .foregroundStyle(Color.black)
+        }
+    }
+}
+
 private struct RateActionButton: View {
     var body: some View {
-        HStack(spacing: 2) {
-            Image(systemName: "star.fill")
-                .font(Typography.cardTitle.font)
+        HStack(spacing: 4) {
+            Image(systemName: "star")
+                .font(Typography.tabIcon.font)
                 .foregroundStyle(Color.white)
 
             Text("Rate, Review + More")
