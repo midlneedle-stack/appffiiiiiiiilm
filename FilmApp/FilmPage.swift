@@ -55,6 +55,7 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
             header
             filmInfoBlock
             filmCarouselBlock
+            actionButtonsBlock
             watchedByBlock
             Spacer()
         }
@@ -141,6 +142,21 @@ Sisters Nora and Agnes reunite with their estranged father, the charismatic Gust
         }
     }
 
+    private var actionButtonsBlock: some View {
+        HStack(spacing: 8) {
+            CircleGlassButton(systemName: "bookmark")
+                .frame(width: 54, height: 54)
+
+            RateActionButton()
+                .frame(height: 54)
+
+            CircleGlassButton(systemName: "heart")
+                .frame(width: 54, height: 54)
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.horizontal, FilmPageLayout.horizontalInset)
+    }
+
     private var filmCarouselBlock: some View {
         GeometryReader { geometry in
             ScrollViewReader { proxy in
@@ -205,6 +221,24 @@ private struct CarouselItem: Identifiable {
 private struct WatchedByItem: Identifiable {
     let id = UUID()
     let rating: Int
+}
+
+private struct RateActionButton: View {
+    var body: some View {
+        HStack(spacing: 2) {
+            Image(systemName: "star.fill")
+                .font(Typography.cardTitle.font)
+                .foregroundStyle(Color.white)
+
+            Text("Rate, Review + More")
+                .typography(Typography.bodyPrimary)
+                .foregroundStyle(Color.white)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding(.horizontal, 14)
+        .background(Palette.textPrimary)
+        .clipShape(Capsule())
+    }
 }
 
 private struct FilmInfoCard: View {
